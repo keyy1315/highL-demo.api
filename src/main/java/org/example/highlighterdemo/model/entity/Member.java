@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.highlighterdemo.model.entity.enums.MemberRole;
+import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 
 import java.util.List;
 ///     Member entity...
@@ -13,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Getter
-@Setter
 @Entity
 @Table(name = "member")
 @Schema(description = "member entity")
@@ -59,4 +59,31 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Schema(description = "시즌 별 티어")
     private List<Tiers> tiers;
+
+    public static Member fromRefreshToken(String refreshToken, Member member) {
+        return Member.builder()
+                .id(member.getId())
+                .userId(member.getUserId())
+                .userName(member.getUserName())
+                .nameTag(member.getNameTag())
+                .password(member.getPassword())
+                .role(member.getRole())
+                .tier(member.getTier())
+                .isActive(member.isActive)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public static Member create(MemberRequest req) {
+        return Member.builder()
+                .id(null)
+                .userId(req.userId())
+                .userName(req.userName())
+                .nameTag(req.nameTag())
+                .password(req.password())
+                .role(MemberRole.valueOf(req.role()))
+                .tier(req.tier())
+                .isActive(true)
+                .build();
+    }
 }

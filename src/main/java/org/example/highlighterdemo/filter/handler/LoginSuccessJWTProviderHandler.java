@@ -4,11 +4,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -21,7 +19,6 @@ import java.io.IOException;
 public class LoginSuccessJWTProviderHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
-    private final MemberMapper memberMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -33,7 +30,7 @@ public class LoginSuccessJWTProviderHandler extends SimpleUrlAuthenticationSucce
 
         memberRepository.findByUserId(userId).ifPresent(member -> {
             memberRepository.save(
-                    memberMapper.updateRefreshToken(Member.builder().refreshToken(refreshToken).build(), member));
+                    Member.fromRefreshToken(refreshToken, member));
         });
     }
 

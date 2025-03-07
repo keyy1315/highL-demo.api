@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +28,6 @@ public class JwtService {
     private static final String USERID_CLAIM = "username";
     private static final String BEARER = "Bearer ";
     private final MemberRepository memberRepository;
-    private final MemberMapper memberMapper;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -61,25 +59,13 @@ public class JwtService {
                 .sign(Algorithm.HMAC256(secret));
     }
 
-//    @Transactional
-//    public void updateRefreshToken(String userId, String refreshToken) {
-//        memberRepository
-//                .findByUserId(userId)
-//                .ifPresentOrElse(
-//                        member -> memberRepository
-//                                .save(memberMapper.updateRefreshToken(Member.builder().refreshToken(refreshToken).build(), member)),
-//                        () -> {
-//                            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
-//                        });
-//    }
-
     ///     토큰 삭제 메소드
     ///     refresh 토큰이 만료되어 강제 로그아웃 할 때 / 사용자 로그아웃 할 때 사용
     @Transactional
     public void deleteTokens(String userId, HttpServletResponse response) {
         memberRepository.findByUserId(userId).ifPresentOrElse(
                         member -> memberRepository
-                                .save(memberMapper.updateRefreshToken(Member.builder().refreshToken(null).build(), member)),
+                                .save(Member.fromRefreshToken(null, member)),
                         () -> {
                             throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
                         });

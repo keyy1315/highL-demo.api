@@ -7,7 +7,6 @@ import org.example.highlighterdemo.filter.JwtAuthenticationEntryPoint;
 import org.example.highlighterdemo.filter.JwtAuthenticationProcessingFilter;
 import org.example.highlighterdemo.filter.handler.LoginFailureHandler;
 import org.example.highlighterdemo.filter.handler.LoginSuccessJWTProviderHandler;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.example.highlighterdemo.service.UserDetailService;
@@ -39,7 +38,6 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final UserDetailService userDetailService;
-    private final MemberMapper memberMapper;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -105,7 +103,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler loginSuccessJWTProviderHandler() {
-        return new LoginSuccessJWTProviderHandler(jwtService, memberRepository, memberMapper);
+        return new LoginSuccessJWTProviderHandler(jwtService, memberRepository);
     }
 
     @Bean

@@ -6,7 +6,6 @@ import lombok.*;
 ///     tiers entity...
 ///     member 와 n:1 연관관계이다.
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
