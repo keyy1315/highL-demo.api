@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
+
 ///     jwt 토큰의 인증 단계
 ///     클라이언트의 쿠키에 access/refresh token 달려있는지 검증하고 있을 경우 사용자의 정보를 security context 에 저장하여
 ///     사용자의 정보를 가져올 수 있다.
@@ -36,20 +37,22 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtService.extractAccessToken(request).orElseThrow(
-                () -> new ServletException("Failed to extract access token from request")
-        );
-        if (jwtService.isTokenValid(accessToken)) {
-            jwtService.extractUserId(accessToken).flatMap(
-                    memberRepository::findByUserId
-            ).ifPresent(this::saveAuthentication);
+        String accessToken = jwtService.extractAccessToken(request).orElse(null);
 
-            filterChain.doFilter(request, response);
-        } else {
-            checkRefreshTokenAndResetTokens(request, response);
+        if (accessToken != null) {
+            if (jwtService.isTokenValid(accessToken)) {
+                jwtService.extractUserId(accessToken).flatMap(
+                        memberRepository::findByUserId
+                ).ifPresent(this::saveAuthentication);
 
-            filterChain.doFilter(request, response);
+                filterChain.doFilter(request, response);
+            } else {
+                checkRefreshTokenAndResetTokens(request, response);
+
+                filterChain.doFilter(request, response);
+            }
         }
+        filterChain.doFilter(request, response);
     }
 
     private void checkRefreshTokenAndResetTokens(HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -66,7 +69,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                     });
         } else {
             member.ifPresentOrElse(m ->
-                jwtService.deleteTokens(m.getUserId(), response),
+                            jwtService.deleteTokens(m.getUserId(), response),
                     () -> {
                         throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
                     });
