@@ -12,7 +12,7 @@ import java.util.List;
 ///     티어와 1:n 연관관계이다.
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Entity
 @Table(name = "member")
@@ -55,20 +55,6 @@ public class Member {
     @Schema(description = "인증 토큰")
     private String refreshToken;
 
-    public static Member fromRefreshToken(String refreshToken, Member member) {
-        return Member.builder()
-                .id(member.getId())
-                .userId(member.getUserId())
-                .userName(member.getUserName())
-                .nameTag(member.getNameTag())
-                .password(member.getPassword())
-                .role(member.getRole())
-                .tier(member.getTier())
-                .isActive(member.isActive)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
     public static Member create(MemberRequest req) {
         return Member.builder()
                 .id(null)
@@ -87,5 +73,9 @@ public class Member {
         this.userName = userName;
         this.nameTag = nameTag;
         return this;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

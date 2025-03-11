@@ -4,7 +4,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.springframework.security.core.Authentication;
@@ -28,10 +27,8 @@ public class LoginSuccessJWTProviderHandler extends SimpleUrlAuthenticationSucce
 
         jwtService.sendTokens(response, accessToken, refreshToken);
 
-        memberRepository.findByUserId(userId).ifPresent(member -> {
-            memberRepository.save(
-                    Member.fromRefreshToken(refreshToken, member));
-        });
+        memberRepository.findByUserId(userId).ifPresent(member ->
+                member.updateRefreshToken(refreshToken));
     }
 
     private String extractUserId(Authentication authentication) {

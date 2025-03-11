@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -64,11 +63,10 @@ public class JwtService {
     @Transactional
     public void deleteTokens(String userId, HttpServletResponse response) {
         memberRepository.findByUserId(userId).ifPresentOrElse(
-                        member -> memberRepository
-                                .save(Member.fromRefreshToken(null, member)),
-                        () -> {
-                            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
-                        });
+                member -> member.updateRefreshToken(null),
+                () -> {
+                    throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
+                });
         Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN_SUBJECT, null);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
