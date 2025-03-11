@@ -17,12 +17,29 @@ public class MemberService {
 
     ///     회원가입 메소드 (미완성)
     @Transactional
-    public Member setMember(MemberRequest req) {
-        if(memberRepository.existsByUserId(req.userId())) {
+    public Member signup(MemberRequest req) {
+        if (memberRepository.existsByUserId(req.userId())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist User Id");
         }
         Member member = Member.create(req);
-        memberRepository.save(member);
+        try {
+            memberRepository.save(member);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "error while saving member");
+        }
+        return member;
+    }
+
+    @Transactional
+    public Member patchGameId(MemberRequest req) {
+        Member member = memberRepository.findByUserId(req.userId()).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
+        );
+        try {
+            member = member.addGameId(req.tier(),req.userName(), req.nameTag());
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "error while updating member");
+        }
         return member;
     }
 

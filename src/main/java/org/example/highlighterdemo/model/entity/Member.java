@@ -81,4 +81,11 @@ public class Member {
                 .isActive(true)
                 .build();
     }
+
+    public Member addGameId(String tier, String userName, String nameTag) {
+        this.tier = tier;
+        this.userName = userName;
+        this.nameTag = nameTag;
+        return this;
+    }
 }
