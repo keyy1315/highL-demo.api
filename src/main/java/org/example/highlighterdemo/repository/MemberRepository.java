@@ -3,6 +3,7 @@ package org.example.highlighterdemo.repository;
 import org.example.highlighterdemo.model.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 ///     저장소...
 ///     JPA 사용함
@@ -12,4 +13,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserId(String userId);
 
     Optional<Member> findByRefreshToken(String refreshToken);
+
+    List<Member> findAllByActiveTrue();
+
+    List<Member> findAllByActiveFalse();
 }

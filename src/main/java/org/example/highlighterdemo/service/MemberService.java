@@ -1,13 +1,18 @@
 package org.example.highlighterdemo.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
+import org.example.highlighterdemo.model.responseDTO.MemberResponse;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 ///     회원 관련 비즈니스 로직
 @Service
@@ -43,4 +48,15 @@ public class MemberService {
         return member;
     }
 
+    public List<Member> getUsers(String isActive) {
+        if(isActive == null) {
+            return memberRepository.findAll();
+        } else if("true".equals(isActive)) {
+            return memberRepository.findAllByActiveTrue();
+        } else if("false".equals(isActive)) {
+            return memberRepository.findAllByActiveFalse();
+        } else {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "invalid isActive");
+        }
+    }
 }
