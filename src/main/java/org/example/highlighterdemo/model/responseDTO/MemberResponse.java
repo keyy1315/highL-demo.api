@@ -1,7 +1,6 @@
 package org.example.highlighterdemo.model.responseDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import org.example.highlighterdemo.model.entity.Member;
 
 ///     서버에서 클라이언트에게 전달 할 데이터
@@ -13,7 +12,7 @@ public record MemberResponse(
         @Schema(description = "회원 아이디") String userId,
         @Schema(description = "회원 이름 (라이엇 아이디)") String userName,
         @Schema(description = "라이엇 아이디 태그") String nameTag,
-        @Schema(description = "티어") String tier,
+        @Schema(description = "현재 티어") String tier,
         @Schema(description = "계정 활성 여부") boolean isActive
 ) {
     public static MemberResponse create(Member member) {

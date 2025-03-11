@@ -55,11 +55,6 @@ public class Member {
     @Schema(description = "인증 토큰")
     private String refreshToken;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @Schema(description = "시즌 별 티어")
-    private List<Tiers> tiers;
-
     public static Member fromRefreshToken(String refreshToken, Member member) {
         return Member.builder()
                 .id(member.getId())
