@@ -1,13 +1,10 @@
 package org.example.highlighterdemo.service;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
-import org.example.highlighterdemo.model.responseDTO.MemberResponse;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +17,6 @@ import java.util.List;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    ///     회원가입 메소드 (미완성)
     @Transactional
     public Member signup(MemberRequest req) {
         if (memberRepository.existsByUserId(req.userId())) {
@@ -52,11 +48,17 @@ public class MemberService {
         if(isActive == null) {
             return memberRepository.findAll();
         } else if("true".equals(isActive)) {
-            return memberRepository.findAllByActiveTrue();
+            return memberRepository.findAllByIsActiveTrue();
         } else if("false".equals(isActive)) {
-            return memberRepository.findAllByActiveFalse();
+            return memberRepository.findAllByIsActiveFalse();
         } else {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "invalid isActive");
         }
+    }
+
+    public Member getUsersByUserId(String userId) {
+        return memberRepository.findByUserId(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
+        );
     }
 }

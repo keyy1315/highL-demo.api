@@ -1,11 +1,12 @@
 package org.example.highlighterdemo.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.example.highlighterdemo.model.entity.enums.MemberRole;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 ///     Member entity...
@@ -39,6 +40,7 @@ public class Member {
     @Schema(description = "비밀번호")
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Schema(description = "권한")
     private MemberRole role;
@@ -61,11 +63,23 @@ public class Member {
                 .userId(req.userId())
                 .userName(req.userName())
                 .nameTag(req.nameTag())
-                .password(req.password())
-                .role(MemberRole.valueOf(req.role()))
+                .password(pwEncoder(req.password()))
+                .role(setMemberRole(req.role()))
                 .tier(req.tier())
                 .isActive(true)
                 .build();
+    }
+    private static String pwEncoder(@NotBlank(message = "password: 필수") String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
+    }
+
+    private static MemberRole setMemberRole(String role) {
+        if("ADMIN".equalsIgnoreCase(role)) {
+            return MemberRole.ADMIN;
+        } else {
+            return MemberRole.USER;
+        }
     }
 
     public Member addGameId(String tier, String userName, String nameTag) {

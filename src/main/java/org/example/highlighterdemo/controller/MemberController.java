@@ -8,13 +8,14 @@ import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.example.highlighterdemo.model.responseDTO.MemberResponse;
 import org.example.highlighterdemo.service.MemberService;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@Validated
+@RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
 @Tag(name = "MemberController", description = "회원 API")
@@ -43,5 +44,11 @@ public class MemberController {
         return memberService.getUsers(isActive).stream()
                 .map(MemberResponse::create)
                 .collect(Collectors.toList());
+    }
+
+    @Operation(description = "회원 ID로 회원 조회")
+    @GetMapping("/{userId}")
+    public MemberResponse getUsersByUserId(@PathVariable String userId) {
+        return MemberResponse.create(memberService.getUsersByUserId(userId));
     }
 }

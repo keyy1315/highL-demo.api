@@ -14,7 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByRefreshToken(String refreshToken);
 
-    List<Member> findAllByActiveTrue();
+    List<Member> findAllByIsActiveTrue();
 
-    List<Member> findAllByActiveFalse();
+    List<Member> findAllByIsActiveFalse();
 }
