@@ -63,10 +63,13 @@ public class JwtService {
     @Transactional
     public void deleteTokens(String userId, HttpServletResponse response) {
         memberRepository.findByUserId(userId).ifPresentOrElse(
-                member -> member.updateRefreshToken(null),
-                () -> {
-                    throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
-                });
+                member -> {
+                    member.updateRefreshToken(null);
+                    memberRepository.save(member);
+                },
+        () -> {
+            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
+        });
         Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN_SUBJECT, null);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
@@ -101,9 +104,6 @@ public class JwtService {
     ///  클라이언트의 request 에서 access 토큰 값만 추출하는 메소드
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(ACCESS_TOKEN_SUBJECT)) {
                 return cookie.getValue().describeConstable();
@@ -115,9 +115,6 @@ public class JwtService {
     ///  클라이언트의 request 에서 refresh 토큰 값만 추출하는 메소드
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(REFRESH_TOKEN_SUBJECT)) {
                 return cookie.getValue().describeConstable();

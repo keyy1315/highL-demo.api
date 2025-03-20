@@ -38,26 +38,23 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = jwtService.extractAccessToken(request).orElse(null);
+        String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
 
-        if (accessToken != null) {
+        if (accessToken != null && refreshToken != null) {
             if (jwtService.isTokenValid(accessToken)) {
                 jwtService.extractUserId(accessToken).flatMap(
                         memberRepository::findByUserId
                 ).ifPresent(this::saveAuthentication);
-
-                filterChain.doFilter(request, response);
             } else {
-                checkRefreshTokenAndResetTokens(request, response);
-
-                filterChain.doFilter(request, response);
+                checkRefreshTokenAndResetTokens(request, response, refreshToken);
             }
+        } else if(accessToken == null && refreshToken != null) {
+            checkRefreshTokenAndResetTokens(request, response, refreshToken);
         }
         filterChain.doFilter(request, response);
     }
 
-    private void checkRefreshTokenAndResetTokens(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        String refreshToken = jwtService.extractRefreshToken(request).orElseThrow(
-                () -> new ServletException("Faild to extract refresh token from request"));
+    private void checkRefreshTokenAndResetTokens(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
         Optional<Member> member = memberRepository.findByRefreshToken(refreshToken);
         if (jwtService.isTokenValid(refreshToken)) {
             member.ifPresentOrElse(m -> {
