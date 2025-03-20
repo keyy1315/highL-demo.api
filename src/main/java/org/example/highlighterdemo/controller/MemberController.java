@@ -4,14 +4,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.example.highlighterdemo.feign.RiotClient;
+import org.example.highlighterdemo.feign.RiotClientAsia;
+import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
+import org.example.highlighterdemo.feign.dto.SummonerDTO;
+import org.example.highlighterdemo.model.entity.GameInfo;
+import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.example.highlighterdemo.model.responseDTO.MemberResponse;
 import org.example.highlighterdemo.service.MemberService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Validated
@@ -20,8 +29,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Tag(name = "MemberController", description = "회원 API")
 public class MemberController {
+    @Value("${riot.api}")
+    private String riotApi;
 
     private final MemberService memberService;
+    private final RiotClient riotClient;
+    private final RiotClientAsia riotClientAsia;
 
     @Operation(description = "회원가입 - 사용자를 생성한다.")
     @PostMapping("/signup")
@@ -32,8 +45,13 @@ public class MemberController {
 
     @Operation(description = "회원 정보 수정 - 라이엇 계정 아이디와 티어를 연동한다.")
     @PatchMapping("/lol")
-    public MemberResponse patchGameId(@RequestBody MemberRequest req) {
-        return MemberResponse.create(memberService.patchGameId(req));
+    public MemberResponse patchGameId(@RequestBody GameInfoRequest request) {
+        String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine(), riotApi).getBody()).puuid();
+        SummonerDTO summonerDTO= riotClient.getSummoner(puuid, riotApi).getBody();
+        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id(),riotApi).getBody();
+
+        GameInfo gameInfo = GameInfo.create(request, Objects.requireNonNull(league), summonerDTO.profileIconId());
+        return MemberResponse.create(memberService.setGameInfo(request.userId(),gameInfo));
     }
 
     @Operation(description = "전체 회원 목록 조회")
