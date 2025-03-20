@@ -53,10 +53,14 @@ public class GameInfo {
     private static String ICON_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/15.6.1/img/profileicon/";
 
     public static GameInfo create(GameInfoRequest request, Set<LeagueEntryDTO> league, int iconId) {
+        String tier = "";
+        if(league.iterator().next().tier().isEmpty()) {
+            tier = league.iterator().next().tier() + " " + league.iterator().next().rank();
+        }
         return GameInfo.builder()
                 .id(league.iterator().next().puuid())
                 .summonerId(league.iterator().next().summonerId())
-                .tier(league.iterator().next().tier() + " " + league.iterator().next().rank())
+                .tier(tier)
                 .gameName(request.gameName())
                 .tagLine(request.tagLine())
                 .iconUrl(ICON_BASE_URL + iconId + ".png")

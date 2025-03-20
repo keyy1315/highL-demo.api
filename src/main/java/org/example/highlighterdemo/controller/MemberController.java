@@ -49,7 +49,12 @@ public class MemberController {
         String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine(), riotApi).getBody()).puuid();
         SummonerDTO summonerDTO= riotClient.getSummoner(puuid, riotApi).getBody();
         Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id(),riotApi).getBody();
+        SummonerDTO summonerDTO = riotClient.getSummoner(puuid, riotApi).getBody();
+        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id(), riotApi).getBody();
 
+        if (Objects.requireNonNull(league).isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, request.gameName() + "#" + request.tagLine() + " has no league entry this season..");
+        }
         GameInfo gameInfo = GameInfo.create(request, Objects.requireNonNull(league), summonerDTO.profileIconId());
         return MemberResponse.create(memberService.setGameInfo(request.userId(),gameInfo));
     }
