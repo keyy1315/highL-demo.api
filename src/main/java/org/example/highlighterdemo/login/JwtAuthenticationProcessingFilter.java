@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.filter;
+package org.example.highlighterdemo.login;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -2,11 +2,11 @@ package org.example.highlighterdemo.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.highlighterdemo.filter.JsonUsernamePasswordAuthenticationFilter;
-import org.example.highlighterdemo.filter.JwtAuthenticationEntryPoint;
-import org.example.highlighterdemo.filter.JwtAuthenticationProcessingFilter;
-import org.example.highlighterdemo.filter.handler.LoginFailureHandler;
-import org.example.highlighterdemo.filter.handler.LoginSuccessJWTProviderHandler;
+import org.example.highlighterdemo.login.JsonUsernamePasswordAuthenticationFilter;
+import org.example.highlighterdemo.login.JwtAuthenticationEntryPoint;
+import org.example.highlighterdemo.login.JwtAuthenticationProcessingFilter;
+import org.example.highlighterdemo.login.handler.LoginFailureHandler;
+import org.example.highlighterdemo.login.handler.LoginSuccessJWTProviderHandler;
 import org.example.highlighterdemo.repository.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.example.highlighterdemo.service.UserDetailService;
