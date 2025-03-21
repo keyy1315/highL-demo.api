@@ -62,7 +62,7 @@ public class JwtService {
     ///     refresh 토큰이 만료되어 강제 로그아웃 할 때 / 사용자 로그아웃 할 때 사용
     @Transactional
     public void deleteTokens(String userId, HttpServletResponse response) {
-        memberRepository.findByUserId(userId).ifPresentOrElse(
+        memberRepository.findById(userId).ifPresentOrElse(
                 member -> {
                     member.updateRefreshToken(null);
                     memberRepository.save(member);

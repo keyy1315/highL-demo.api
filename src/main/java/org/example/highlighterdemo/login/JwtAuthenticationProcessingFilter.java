@@ -43,12 +43,12 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         if (accessToken != null && refreshToken != null) {
             if (jwtService.isTokenValid(accessToken)) {
                 jwtService.extractUserId(accessToken).flatMap(
-                        memberRepository::findByUserId
+                        memberRepository::findById
                 ).ifPresent(this::saveAuthentication);
             } else {
                 checkRefreshTokenAndResetTokens(request, response, refreshToken);
             }
-        } else if(accessToken == null && refreshToken != null) {
+        } else if (accessToken == null && refreshToken != null) {
             checkRefreshTokenAndResetTokens(request, response, refreshToken);
         }
         filterChain.doFilter(request, response);
@@ -59,14 +59,17 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         if (jwtService.isTokenValid(refreshToken)) {
             member.ifPresentOrElse(m -> {
                         /// Refresh Token Rotate
-                        jwtService.sendTokens(response, jwtService.createAccessToken(m.getUserId()), jwtService.createRefreshToken());
+                        m.updateRefreshToken(refreshToken);
+                        memberRepository.save(m);
+
+                        jwtService.sendTokens(response, jwtService.createAccessToken(m.getId()), jwtService.createRefreshToken());
                     },
                     () -> {
                         throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
                     });
         } else {
             member.ifPresentOrElse(m ->
-                            jwtService.deleteTokens(m.getUserId(), response),
+                            jwtService.deleteTokens(m.getId(), response),
                     () -> {
                         throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
                     });
@@ -77,7 +80,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private void saveAuthentication(Member member) {
         UserDetails user =
                 User.builder()
-                        .username(member.getUserId())
+                        .username(member.getId())
                         .password(member.getPassword())
                         .roles(member.getRole().name())
                         .build();

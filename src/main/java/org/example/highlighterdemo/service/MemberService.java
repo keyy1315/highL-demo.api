@@ -22,7 +22,7 @@ public class MemberService {
 
     @Transactional
     public Member signup(MemberRequest req) {
-        if (memberRepository.existsByUserId(req.userId())) {
+        if (memberRepository.existsById(req.id())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist User Id");
         }
         Member member = Member.create(req);
@@ -36,7 +36,7 @@ public class MemberService {
 
     @Transactional
     public Member setGameInfo(String memberId, GameInfo info) {
-        Member member = memberRepository.findByUserId(memberId).orElseThrow(
+        Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
         );
         member.updateGameInfo(info);
@@ -57,7 +57,7 @@ public class MemberService {
     }
 
     public Member getUsersByUserId(String userId) {
-        return memberRepository.findByUserId(userId).orElseThrow(
+        return memberRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
         );
     }

@@ -10,11 +10,12 @@ import java.util.UUID;
 ///     클라이언트가 사용자의 정보를 get 할 때 보내 줄 용도 - 모든 컬럼을 전달 하는 것 보다는 필요한 정보만 전달하기 위함
 @Schema(description = "회원 response")
 public record MemberResponse(
-        @Schema(description = "member pk") UUID id,
+        @Schema(description = "member pk") String id,
         @Schema(description = "회원 아이디") String userId,
         @Schema(description = "회원 이름 (라이엇 아이디)") String gameName,
         @Schema(description = "라이엇 아이디 태그") String tagLine,
         @Schema(description = "현재 티어") String tier,
+        @Schema(description = "회원 아이콘") String iconUrl,
         @Schema(description = "계정 활성 여부") boolean isActive,
         @Schema(description = "권한") String role
 ) {
@@ -22,11 +23,13 @@ public record MemberResponse(
         String gameName = "";
         String tagLine = "";
         String tier = "";
+        String iconUrl = "";
         if (member.getGameInfo() != null) {
             gameName = member.getGameInfo().getGameName();
             tagLine = member.getGameInfo().getTagLine();
             tier = member.getGameInfo().getTier();
+            iconUrl = member.getGameInfo().getIconUrl();
         }
-        return new MemberResponse(member.getId(), member.getUserId(), gameName, tagLine, tier, member.isActive(), member.getRole().name());
+        return new MemberResponse(member.getId(), member.getId(), gameName, tagLine, tier, iconUrl, member.isActive(), member.getRole().name());
     }
 }

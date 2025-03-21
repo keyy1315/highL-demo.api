@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 public record MemberRequest(
         @Schema(description = "회원 ID")
         @NotBlank(message = "user_id : 필수")
-        String userId,
+        String id,
         @Schema(description = "비밀번호")
         @NotBlank(message = "password: 필수")
         String password

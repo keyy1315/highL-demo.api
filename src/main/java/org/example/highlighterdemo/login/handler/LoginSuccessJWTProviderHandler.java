@@ -27,7 +27,7 @@ public class LoginSuccessJWTProviderHandler extends SimpleUrlAuthenticationSucce
 
         jwtService.sendTokens(response, accessToken, refreshToken);
 
-        Member member = memberRepository.findByUserId(userId).orElse(null);
+        Member member = memberRepository.findById(userId).orElse(null);
         Objects.requireNonNull(member).updateRefreshToken(refreshToken);
         memberRepository.save(member);
     }

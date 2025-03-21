@@ -20,11 +20,11 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         Member member
-                = memberRepository.findByUserId(userId)
+                = memberRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException(userId));
 
         return User.builder()
-                .username(member.getUserId())
+                .username(member.getId())
                 .password(member.getPassword())
                 .roles(member.getRole().name())
                 .build();

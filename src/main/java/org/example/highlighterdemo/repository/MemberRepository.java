@@ -7,11 +7,7 @@ import java.util.List;
 import java.util.Optional;
 ///     저장소...
 ///     JPA 사용함
-public interface MemberRepository extends JpaRepository<Member, Long> {
-    boolean existsByUserId(String userId);
-
-    Optional<Member> findByUserId(String userId);
-
+public interface MemberRepository extends JpaRepository<Member, String> {
     Optional<Member> findByRefreshToken(String refreshToken);
 
     List<Member> findAllByIsActiveTrue();

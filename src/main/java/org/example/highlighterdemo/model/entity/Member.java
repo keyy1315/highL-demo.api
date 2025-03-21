@@ -22,12 +22,8 @@ import java.util.UUID;
 @Schema(description = "member entity")
 public class Member {
     @Id
-    @Schema(description = "member pk")
-    private UUID id;
-
-    @Column(nullable = false)
-    @Schema(description = "user set id")
-    private String userId;
+    @Schema(description = "member pk : user set id")
+    private String id;
 
     @Column(nullable = false)
     @Schema(description = "password")
@@ -52,8 +48,7 @@ public class Member {
 
     public static Member create(MemberRequest req) {
         return Member.builder()
-                .id(UUID.randomUUID())
-                .userId(req.userId())
+                .id(req.id())
                 .password(pwEncoder(req.password()))
                 .role(setMemberRole(""))
                 .isActive(true)
