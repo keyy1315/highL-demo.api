@@ -16,13 +16,12 @@ import org.example.highlighterdemo.service.S3Service;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,9 +41,18 @@ public class BoardController {
                                   @RequestPart(value = "file", required = false) @Parameter(description = "static file") MultipartFile file,
                                   @RequestPart("dto") @Parameter(description = "board create dto") BoardRequest boardRequest) throws IOException {
         String fileUrl = s3Service.uploadFile(file);
-        Board board =  boardService.setBoard(boardRequest, user.getUsername(), fileUrl);
+        Board board = boardService.setBoard(boardRequest, user.getUsername(), fileUrl);
         int comments = commentService.getCommentCnt(board.getId());
         return BoardResponse.create(board, comments);
     }
 
+    @Operation(description = "게시글 목록 조회")
+    @GetMapping
+    public List<BoardResponse> getBoards(@RequestParam("sort") @Parameter(description = "sort : createdDate, view, like") String sort,
+                                         @RequestPart("desc") @Parameter(description = "true = desc, false = asc") boolean desc) {
+        return boardService.getBoards(sort, desc).stream()
+                .map(board -> {
+                    return BoardResponse.create(board, commentService.getCommentCnt(board.getId()));
+                }).collect(Collectors.toList());
+    }
 }

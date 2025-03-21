@@ -9,12 +9,11 @@ import org.example.highlighterdemo.model.entity.Tag;
 import org.example.highlighterdemo.model.requestDTO.BoardRequest;
 import org.example.highlighterdemo.repository.BoardRepository;
 import org.example.highlighterdemo.repository.MemberRepository;
-import org.example.highlighterdemo.repository.TagRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
-    private final TagRepository tagRepository;
+
 
     @Transactional
     public Board setBoard(BoardRequest boardRequest, String userName, String fileUrl) {
@@ -35,5 +34,17 @@ public class BoardService {
         Board board = Board.create(boardRequest, tagList, fileUrl, member);
         boardRepository.save(board);
         return board;
+    }
+
+    ///  sort : "createdDate", "view", "likes", "comments"
+    public List<Board> getBoards(String sort, boolean desc) {
+        if(!"createdDate".equals(sort) && !"view".equals(sort) && !"likes".equals(sort) && !"comments".equals(sort)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "sort is invalid");
+        }
+        if("comments".equals(sort)) {
+            return boardRepository.orderByCommentCnt(desc);
+        }
+        if(desc) return boardRepository.findAll(Sort.by(Sort.Direction.DESC, sort));
+        return boardRepository.findAll(Sort.by(Sort.Direction.ASC, sort));
     }
 }

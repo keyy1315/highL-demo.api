@@ -56,7 +56,7 @@ public class Board {
     @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "created date")
-    private LocalDateTime created;
+    private LocalDateTime createdDate;
 
     public static Board create(BoardRequest req, List<Tag> tags, String fileUrl, Member member) {
         return Board.builder()

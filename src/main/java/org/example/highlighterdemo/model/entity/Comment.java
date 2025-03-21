@@ -48,5 +48,5 @@ public class Comment {
     @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "created date")
-    private LocalDateTime created;
+    private LocalDateTime createdDate;
 }
