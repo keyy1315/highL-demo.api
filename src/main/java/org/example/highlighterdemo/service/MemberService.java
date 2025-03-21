@@ -61,4 +61,11 @@ public class MemberService {
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
         );
     }
+
+    public boolean existGameInfo(String username) {
+        Member member =  memberRepository.findById(username).orElseThrow(() ->
+                new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id"));
+
+        return member.getGameInfo() != null;
+    }
 }

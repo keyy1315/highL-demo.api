@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
+import org.example.highlighterdemo.config.exception.ErrorResponse;
 import org.example.highlighterdemo.feign.RiotClient;
 import org.example.highlighterdemo.feign.RiotClientAsia;
 import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
@@ -52,6 +53,10 @@ public class MemberController {
     @Operation(description = "회원 정보 수정 - 라이엇 계정 아이디와 티어를 연동한다.")
     @PatchMapping("/lol")
     public MemberResponse patchGameId(@RequestBody GameInfoRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        if(memberService.existGameInfo(userDetails.getUsername())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, userDetails.getUsername() + " is already has GameName..");
+        }
+
         String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine(), riotApi).getBody()).puuid();
         SummonerDTO summonerDTO = riotClient.getSummoner(puuid, riotApi).getBody();
         Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id(), riotApi).getBody();
