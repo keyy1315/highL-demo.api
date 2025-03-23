@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.entity.Comment;
 import org.example.highlighterdemo.model.requestDTO.CommentRequest;
 import org.example.highlighterdemo.model.responseDTO.CommentResponse;
-import org.example.highlighterdemo.repository.CommentRepository;
+import org.example.highlighterdemo.repository.comment.CommentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

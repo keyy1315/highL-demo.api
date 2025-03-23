@@ -1,7 +1,6 @@
-package org.example.highlighterdemo.repository;
+package org.example.highlighterdemo.repository.comment;
 
 import org.example.highlighterdemo.model.entity.Comment;
-import org.example.highlighterdemo.repository.custom.interfaces.CommentRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

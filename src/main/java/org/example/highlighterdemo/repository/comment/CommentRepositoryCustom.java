@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.repository.custom.interfaces;
+package org.example.highlighterdemo.repository.comment;
 
 import org.example.highlighterdemo.model.entity.Comment;
 

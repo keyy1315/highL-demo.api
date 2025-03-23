@@ -2,7 +2,7 @@ package org.example.highlighterdemo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.entity.Tag;
-import org.example.highlighterdemo.repository.TagRepository;
+import org.example.highlighterdemo.repository.tag.TagRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

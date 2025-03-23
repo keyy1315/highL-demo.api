@@ -1,10 +1,9 @@
-package org.example.highlighterdemo.repository.custom;
+package org.example.highlighterdemo.repository.comment;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.entity.Comment;
 import org.example.highlighterdemo.model.entity.QComment;
-import org.example.highlighterdemo.repository.custom.interfaces.CommentRepositoryCustom;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

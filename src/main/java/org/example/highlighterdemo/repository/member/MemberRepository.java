@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.repository;
+package org.example.highlighterdemo.repository.member;
 
 import org.example.highlighterdemo.model.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

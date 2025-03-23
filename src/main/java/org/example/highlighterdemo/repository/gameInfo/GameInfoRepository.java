@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.repository;
+package org.example.highlighterdemo.repository.gameInfo;
 
 import org.example.highlighterdemo.model.entity.GameInfo;
 import org.springframework.data.jpa.repository.JpaRepository;

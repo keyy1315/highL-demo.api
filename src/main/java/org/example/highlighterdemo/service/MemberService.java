@@ -7,7 +7,7 @@ import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.GameInfo;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

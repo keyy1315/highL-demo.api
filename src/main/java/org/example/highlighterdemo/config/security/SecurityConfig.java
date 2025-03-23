@@ -7,7 +7,7 @@ import org.example.highlighterdemo.login.JwtAuthenticationEntryPoint;
 import org.example.highlighterdemo.login.JwtAuthenticationProcessingFilter;
 import org.example.highlighterdemo.login.handler.LoginFailureHandler;
 import org.example.highlighterdemo.login.handler.LoginSuccessJWTProviderHandler;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.example.highlighterdemo.service.UserDetailService;
 import org.springframework.context.annotation.Bean;

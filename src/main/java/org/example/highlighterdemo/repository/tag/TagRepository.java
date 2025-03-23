@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.repository;
+package org.example.highlighterdemo.repository.tag;
 
 import org.example.highlighterdemo.model.entity.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.Member;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

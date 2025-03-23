@@ -2,7 +2,7 @@ package org.example.highlighterdemo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.entity.Member;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

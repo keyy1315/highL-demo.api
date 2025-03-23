@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
