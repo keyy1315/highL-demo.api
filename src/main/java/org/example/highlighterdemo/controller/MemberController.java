@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.config.exception.ErrorResponse;
+import org.example.highlighterdemo.feign.RiotAsiaClient;
 import org.example.highlighterdemo.feign.RiotClient;
-import org.example.highlighterdemo.feign.RiotClientAsia;
 import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
 import org.example.highlighterdemo.feign.dto.SummonerDTO;
 import org.example.highlighterdemo.model.entity.GameInfo;
@@ -17,7 +16,6 @@ import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.example.highlighterdemo.model.responseDTO.MemberResponse;
 import org.example.highlighterdemo.service.MemberService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,12 +34,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Tag(name = "MemberController", description = "회원 API")
 public class MemberController {
-    @Value("${riot.api}")
-    private String riotApi;
 
     private final MemberService memberService;
     private final RiotClient riotClient;
-    private final RiotClientAsia riotClientAsia;
+    private final RiotAsiaClient riotClientAsia;
 
     @Operation(description = "회원가입 - 사용자를 생성한다.")
     @PostMapping("/signup")
@@ -53,13 +49,16 @@ public class MemberController {
     @Operation(description = "회원 정보 수정 - 라이엇 계정 아이디와 티어를 연동한다.")
     @PatchMapping("/lol")
     public MemberResponse patchGameId(@RequestBody GameInfoRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        if(userDetails == null){
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "no login information");
+        }
         if(memberService.existGameInfo(userDetails.getUsername())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, userDetails.getUsername() + " is already has GameName..");
         }
 
-        String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine(), riotApi).getBody()).puuid();
-        SummonerDTO summonerDTO = riotClient.getSummoner(puuid, riotApi).getBody();
-        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id(), riotApi).getBody();
+        String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine()).getBody()).get("puuid");
+        SummonerDTO summonerDTO = riotClient.getSummoner(puuid).getBody();
+        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id()).getBody();
 
         if (Objects.requireNonNull(league).isEmpty()) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, request.gameName() + "#" + request.tagLine() + " has no league entry this season..");

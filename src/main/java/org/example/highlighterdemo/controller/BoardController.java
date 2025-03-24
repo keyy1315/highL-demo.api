@@ -13,11 +13,14 @@ import org.example.highlighterdemo.model.responseDTO.BoardResponse;
 import org.example.highlighterdemo.service.BoardService;
 import org.example.highlighterdemo.service.CommentService;
 import org.example.highlighterdemo.service.S3Service;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,5 +57,17 @@ public class BoardController {
                 .map(board -> {
                     return BoardResponse.create(board, commentService.getCommentCnt(board.getId()));
                 }).collect(Collectors.toList());
+    }
+
+    @Operation(description = "게시글 비디오 조회")
+    @GetMapping("/video")
+    public ResponseEntity<StreamingResponseBody> getVideos(@RequestParam("key") String key) {
+        String fileName = key.split("/")[1];
+        StreamingResponseBody stream = outputStream ->
+                s3Service.getVideos(outputStream, key);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(stream);
     }
 }

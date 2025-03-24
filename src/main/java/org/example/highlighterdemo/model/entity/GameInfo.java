@@ -54,7 +54,7 @@ public class GameInfo {
 
     public static GameInfo create(GameInfoRequest request, Set<LeagueEntryDTO> league, int iconId) {
         String tier = "";
-        if(league.iterator().next().tier().isEmpty()) {
+        if(!league.iterator().next().tier().isEmpty()) {
             tier = league.iterator().next().tier() + " " + league.iterator().next().rank();
         }
         return GameInfo.builder()

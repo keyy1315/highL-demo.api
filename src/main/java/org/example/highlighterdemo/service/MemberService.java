@@ -7,6 +7,7 @@ import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.GameInfo;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
+import org.example.highlighterdemo.repository.gameInfo.GameInfoRepository;
 import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final GameInfoRepository gameInfoRepository;
 
     @Transactional
     public Member signup(MemberRequest req) {
@@ -39,8 +41,10 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
         );
+        if(gameInfoRepository.existsById(info.getId())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist Game Id");
+        }
         member.updateGameInfo(info);
-        log.info("updated gameInfo : {}", member.getGameInfo().getSummonerId());
         return member;
     }
 
@@ -63,9 +67,10 @@ public class MemberService {
     }
 
     public boolean existGameInfo(String username) {
-        Member member =  memberRepository.findById(username).orElseThrow(() ->
+        Member member = memberRepository.findById(username).orElseThrow(() ->
                 new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id"));
 
         return member.getGameInfo() != null;
     }
+
 }

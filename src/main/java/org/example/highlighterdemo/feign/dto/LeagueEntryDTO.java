@@ -1,5 +1,6 @@
 package org.example.highlighterdemo.feign.dto;
 
+import java.util.Map;
 import java.util.Optional;
 
 public record LeagueEntryDTO(
@@ -16,5 +17,5 @@ public record LeagueEntryDTO(
         boolean veteran,
         boolean freshBlood,
         boolean inactive,
-        Optional<MiniSeriesDTO> miniSeries
+        Optional<Map<String, String>> miniSeries
 ) {}
