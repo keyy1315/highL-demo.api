@@ -7,11 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.feign.RiotAsiaClient;
-import org.example.highlighterdemo.feign.RiotClient;
-import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
-import org.example.highlighterdemo.feign.dto.SummonerDTO;
-import org.example.highlighterdemo.model.entity.GameInfo;
 import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.example.highlighterdemo.model.responseDTO.MemberResponse;
@@ -23,8 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,8 +29,6 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
-    private final RiotClient riotClient;
-    private final RiotAsiaClient riotClientAsia;
 
     @Operation(description = "회원가입 - 사용자를 생성한다.")
     @PostMapping("/signup")
@@ -55,16 +46,7 @@ public class MemberController {
         if(memberService.existGameInfo(userDetails.getUsername())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, userDetails.getUsername() + " is already has GameName..");
         }
-
-        String puuid = Objects.requireNonNull(riotClientAsia.getPUuid(request.gameName(), request.tagLine()).getBody()).get("puuid");
-        SummonerDTO summonerDTO = riotClient.getSummoner(puuid).getBody();
-        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id()).getBody();
-
-        if (Objects.requireNonNull(league).isEmpty()) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, request.gameName() + "#" + request.tagLine() + " has no league entry this season..");
-        }
-        GameInfo gameInfo = GameInfo.create(request, Objects.requireNonNull(league), summonerDTO.profileIconId());
-        return MemberResponse.create(memberService.setGameInfo(userDetails.getUsername(), gameInfo));
+        return MemberResponse.create(memberService.setGameInfo(userDetails.getUsername(), request));
     }
 
     @Operation(description = "전체 회원 목록 조회")
