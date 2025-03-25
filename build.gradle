@@ -43,7 +43,7 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.31.3'
     // openfeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
-    //circuit breaker
+    // circuit breaker
     implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

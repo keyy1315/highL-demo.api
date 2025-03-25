@@ -1,5 +1,6 @@
 package org.example.highlighterdemo.feign;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.feign.config.FeignConfig;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;
 
-@FeignClient(name = "riot-api-asia", url = "https://asia.api.riotgames.com",
+@FeignClient(name = "riot-asia-service", url = "https://asia.api.riotgames.com",
         configuration = FeignConfig.class, fallbackFactory = RiotAsiaClient.PuuidFallbackFactory.class)
 public interface RiotAsiaClient {
     @GetMapping("/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}")
@@ -31,7 +32,7 @@ public interface RiotAsiaClient {
 
         @Override
         public ResponseEntity<Map<String, String>> getPUuid(String gameName, String tagLine) {
-            throw new CustomException(ErrorCode.SERVICE_UNAVAILABLE, "Feign Fallback");
+            throw new CustomException(ErrorCode.SERVICE_UNAVAILABLE, "Feign Fallback : getPuuid failed");
         }
     }
 }
