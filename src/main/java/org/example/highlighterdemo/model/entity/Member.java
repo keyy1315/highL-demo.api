@@ -7,11 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.highlighterdemo.model.entity.enums.MemberRole;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.UUID;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -42,8 +41,14 @@ public class Member {
     @Schema(description = "refresh token")
     private String refreshToken;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "follow_id", referencedColumnName = "id")
+    @Schema(description = "following members")
+    private List<Member> member;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "game_info_id", referencedColumnName = "id")
+    @Schema(description = "connect riot id")
     private GameInfo gameInfo;
 
     public static Member create(MemberRequest req) {
