@@ -26,6 +26,10 @@ public class Board {
     @Schema(description = "board pk")
     private String id;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
+
     @Column
     @Schema(description = "title")
     private String title;
