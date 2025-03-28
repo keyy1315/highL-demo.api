@@ -7,9 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.highlighterdemo.model.requestDTO.CommentRequest;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,10 +24,6 @@ public class Comment {
     @Id
     @Schema(description = "comment pk")
     private String id;
-
-    @Column(name = "parent_id")
-    @Schema(description = "parent_id : depth 2")
-    private String parentId;
 
     @Column
     @Schema(description = "comment content")
@@ -49,4 +47,15 @@ public class Comment {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "created date")
     private LocalDateTime createdDate;
+
+
+    public static Comment create(Member member, Board board, CommentRequest req) {
+        return Comment.builder()
+                .id(UUID.randomUUID().toString())
+                .content(req.content())
+                .member(member)
+                .board(board)
+                .createdDate(LocalDateTime.now())
+                .build();
+    }
 }

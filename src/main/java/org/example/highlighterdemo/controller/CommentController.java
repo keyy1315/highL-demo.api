@@ -20,17 +20,4 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-    @Operation(description = "get comments by boardId with hierarchy orderBy CreatedDate")
-    @GetMapping("/{board}")
-    public List<CommentResponse> getCommentsByBoardId(
-            @PathVariable("board") @Parameter(description = "board_id") String boardId) {
-        return commentService.getComments(boardId);
-    }
-
-    @Operation(description = "write comments")
-    @PostMapping
-    public CommentResponse setComments(@AuthenticationPrincipal UserDetails user,
-                                       @RequestBody CommentRequest commentRequest) {
-        return CommentResponse.create(commentService.setComments(user.getUsername(),commentRequest));
-    }
 }

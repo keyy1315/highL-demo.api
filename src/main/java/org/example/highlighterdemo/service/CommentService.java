@@ -1,10 +1,16 @@
 package org.example.highlighterdemo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.highlighterdemo.config.exception.CustomException;
+import org.example.highlighterdemo.config.exception.ErrorCode;
+import org.example.highlighterdemo.model.entity.Board;
 import org.example.highlighterdemo.model.entity.Comment;
+import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.CommentRequest;
 import org.example.highlighterdemo.model.responseDTO.CommentResponse;
+import org.example.highlighterdemo.repository.board.BoardRepository;
 import org.example.highlighterdemo.repository.comment.CommentRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,31 +20,20 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
+    private final BoardRepository boardRepository;
 
     public int getCommentCnt(String boardId) {
         return commentRepository.findAllByBoardId(boardId).size();
     }
 
-    public List<CommentResponse> getComments(String boardId) {
-        List<Comment> comments = commentRepository.findAllByBoardIdSorted(boardId);
-
-        List<Comment> parentComments =
-                comments.stream().filter(comment -> comment.getParentId() == null).toList();
-
-        return parentComments.stream()
-                .map(parent -> buildHierarchy(parent, comments))
-                .toList();
-    }
-
-    private CommentResponse buildHierarchy(Comment parent, List<Comment> comments) {
-        List<CommentResponse> childComments = comments.stream()
-                .filter(comment -> Objects.equals(comment.getParentId(), parent.getId()))
-                .map(child -> buildHierarchy(child, comments))
-                .toList();
-        return CommentResponse.from(parent, childComments);
-    }
-
     public Comment setComments(String username, CommentRequest commentRequest) {
-        return null;
+        Member member = memberRepository.findById(username).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find member"));
+        Board board = boardRepository.findById(commentRequest.boardId()).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find board"));
+
+        Comment comment = Comment.create(member, board, commentRequest);
+        return commentRepository.save(comment);
     }
 }
