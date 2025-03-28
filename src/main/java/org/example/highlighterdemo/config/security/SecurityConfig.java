@@ -2,13 +2,12 @@ package org.example.highlighterdemo.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.highlighterdemo.filter.JsonUsernamePasswordAuthenticationFilter;
-import org.example.highlighterdemo.filter.JwtAuthenticationEntryPoint;
-import org.example.highlighterdemo.filter.JwtAuthenticationProcessingFilter;
-import org.example.highlighterdemo.filter.handler.LoginFailureHandler;
-import org.example.highlighterdemo.filter.handler.LoginSuccessJWTProviderHandler;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.login.JsonUsernamePasswordAuthenticationFilter;
+import org.example.highlighterdemo.login.JwtAuthenticationEntryPoint;
+import org.example.highlighterdemo.login.JwtAuthenticationProcessingFilter;
+import org.example.highlighterdemo.login.handler.LoginFailureHandler;
+import org.example.highlighterdemo.login.handler.LoginSuccessJWTProviderHandler;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.example.highlighterdemo.service.UserDetailService;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +28,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 ///     spring security 사용... spring 에서 제공하는 기본 로그인 폼이나 인증/인가를 재정의함
 @Configuration
@@ -39,9 +40,21 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final UserDetailService userDetailService;
-    private final MemberMapper memberMapper;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -105,7 +118,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler loginSuccessJWTProviderHandler() {
-        return new LoginSuccessJWTProviderHandler(jwtService, memberRepository, memberMapper);
+        return new LoginSuccessJWTProviderHandler(jwtService, memberRepository);
     }
 
     @Bean

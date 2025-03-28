@@ -1,33 +1,96 @@
 package org.example.highlighterdemo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
+import org.example.highlighterdemo.feign.RiotAsiaClient;
+import org.example.highlighterdemo.feign.RiotClient;
+import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
+import org.example.highlighterdemo.feign.dto.SummonerDTO;
+import org.example.highlighterdemo.model.entity.GameInfo;
 import org.example.highlighterdemo.model.entity.Member;
+import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
-import org.example.highlighterdemo.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.highlighterdemo.repository.gameInfo.GameInfoRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 ///     회원 관련 비즈니스 로직
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    @Autowired
-    private MemberMapper memberMapper;
+    private final GameInfoRepository gameInfoRepository;
 
-    ///     회원가입 메소드 (미완성)
+    private final RiotClient riotClient;
+    private final RiotAsiaClient riotAsiaClient;
+
     @Transactional
-    public Member setMember(MemberRequest req) {
-        if(memberRepository.existsByUserId(req.userId())) {
+    public Member signup(MemberRequest req) {
+        if (memberRepository.existsById(req.id())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist User Id");
         }
-        Member member = memberMapper.toMember(req);
-        memberRepository.save(member);
+        Member member = Member.create(req);
+        try {
+            memberRepository.save(member);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "error while saving member");
+        }
         return member;
+    }
+
+    @Transactional
+    public Member setGameInfo(String memberId, GameInfoRequest req) {
+        Member member = memberRepository.findById(memberId).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
+        );
+
+        String puuid = Objects.requireNonNull(riotAsiaClient.getPUuid(req.gameName(), req.tagLine()).getBody()).get("puuid");
+        SummonerDTO summonerDTO = riotClient.getSummoner(puuid).getBody();
+        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id()).getBody();
+
+        if (Objects.requireNonNull(league).isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, req.gameName() + "#" + req.tagLine() + " has no league entry this season..");
+        }
+        GameInfo gameInfo = GameInfo.create(req, Objects.requireNonNull(league), summonerDTO.profileIconId());
+
+        if (gameInfoRepository.existsById(gameInfo.getId())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist Game Id");
+        }
+        member.updateGameInfo(gameInfo);
+        return member;
+    }
+
+    public List<Member> getUsers(String isActive) {
+        if (isActive == null) {
+            return memberRepository.findAll();
+        } else if ("true".equals(isActive)) {
+            return memberRepository.findAllByIsActiveTrue();
+        } else if ("false".equals(isActive)) {
+            return memberRepository.findAllByIsActiveFalse();
+        } else {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "invalid isActive");
+        }
+    }
+
+    public Member getUsersByUserId(String userId) {
+        return memberRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
+        );
+    }
+
+    public boolean existGameInfo(String username) {
+        Member member = memberRepository.findById(username).orElseThrow(() ->
+                new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id"));
+
+        return member.getGameInfo() != null;
     }
 
 }

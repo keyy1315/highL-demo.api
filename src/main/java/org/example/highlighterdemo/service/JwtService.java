@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.mapStruct.MemberMapper;
-import org.example.highlighterdemo.model.entity.Member;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +27,6 @@ public class JwtService {
     private static final String USERID_CLAIM = "username";
     private static final String BEARER = "Bearer ";
     private final MemberRepository memberRepository;
-    private final MemberMapper memberMapper;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -61,28 +58,18 @@ public class JwtService {
                 .sign(Algorithm.HMAC256(secret));
     }
 
-//    @Transactional
-//    public void updateRefreshToken(String userId, String refreshToken) {
-//        memberRepository
-//                .findByUserId(userId)
-//                .ifPresentOrElse(
-//                        member -> memberRepository
-//                                .save(memberMapper.updateRefreshToken(Member.builder().refreshToken(refreshToken).build(), member)),
-//                        () -> {
-//                            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
-//                        });
-//    }
-
     ///     토큰 삭제 메소드
     ///     refresh 토큰이 만료되어 강제 로그아웃 할 때 / 사용자 로그아웃 할 때 사용
     @Transactional
     public void deleteTokens(String userId, HttpServletResponse response) {
-        memberRepository.findByUserId(userId).ifPresentOrElse(
-                        member -> memberRepository
-                                .save(memberMapper.updateRefreshToken(Member.builder().refreshToken(null).build(), member)),
-                        () -> {
-                            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
-                        });
+        memberRepository.findById(userId).ifPresentOrElse(
+                member -> {
+                    member.updateRefreshToken(null);
+                    memberRepository.save(member);
+                },
+        () -> {
+            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
+        });
         Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN_SUBJECT, null);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
@@ -117,9 +104,7 @@ public class JwtService {
     ///  클라이언트의 request 에서 access 토큰 값만 추출하는 메소드
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
+        if(cookies == null) return Optional.empty();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(ACCESS_TOKEN_SUBJECT)) {
                 return cookie.getValue().describeConstable();
@@ -131,9 +116,7 @@ public class JwtService {
     ///  클라이언트의 request 에서 refresh 토큰 값만 추출하는 메소드
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return Optional.empty();
-        }
+        if(cookies == null) return Optional.empty();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(REFRESH_TOKEN_SUBJECT)) {
                 return cookie.getValue().describeConstable();

@@ -2,7 +2,7 @@ package org.example.highlighterdemo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.entity.Member;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,11 +20,11 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         Member member
-                = memberRepository.findByUserId(userId)
+                = memberRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException(userId));
 
         return User.builder()
-                .username(member.getUserId())
+                .username(member.getId())
                 .password(member.getPassword())
                 .roles(member.getRole().name())
                 .build();

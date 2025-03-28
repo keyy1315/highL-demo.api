@@ -8,17 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 public record MemberRequest(
         @Schema(description = "회원 ID")
         @NotBlank(message = "user_id : 필수")
-        String userId,
+        String id,
         @Schema(description = "비밀번호")
         @NotBlank(message = "password: 필수")
-        String password,
-        @Schema(description = "회원 닉네임")
-        String userName,
-        @Schema(description = "라이엇 id 태그")
-        String nameTag,
-        @Schema(description = "티어")
-        String tier,
-        @Schema(description = "권한")
-        String role
-) {
-}
+        String password
+) {}

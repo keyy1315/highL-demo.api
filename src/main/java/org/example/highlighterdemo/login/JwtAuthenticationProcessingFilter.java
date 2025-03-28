@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.filter;
+package org.example.highlighterdemo.login;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.Member;
-import org.example.highlighterdemo.repository.MemberRepository;
+import org.example.highlighterdemo.repository.member.MemberRepository;
 import org.example.highlighterdemo.service.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
+
 ///     jwt 토큰의 인증 단계
 ///     클라이언트의 쿠키에 access/refresh token 달려있는지 검증하고 있을 경우 사용자의 정보를 security context 에 저장하여
 ///     사용자의 정보를 가져올 수 있다.
@@ -31,42 +32,44 @@ import java.util.Optional;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
-    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+    private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtService.extractAccessToken(request).orElseThrow(
-                () -> new ServletException("Failed to extract access token from request")
-        );
-        if (jwtService.isTokenValid(accessToken)) {
-            jwtService.extractUserId(accessToken).flatMap(
-                    memberRepository::findByUserId
-            ).ifPresent(this::saveAuthentication);
+        String accessToken = jwtService.extractAccessToken(request).orElse(null);
+        String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
 
-            filterChain.doFilter(request, response);
-        } else {
-            checkRefreshTokenAndResetTokens(request, response);
-
-            filterChain.doFilter(request, response);
+        if (accessToken != null && refreshToken != null) {
+            if (jwtService.isTokenValid(accessToken)) {
+                jwtService.extractUserId(accessToken).flatMap(
+                        memberRepository::findById
+                ).ifPresent(this::saveAuthentication);
+            } else {
+                checkRefreshTokenAndResetTokens(request, response, refreshToken);
+            }
+        } else if (accessToken == null && refreshToken != null) {
+            checkRefreshTokenAndResetTokens(request, response, refreshToken);
         }
+        filterChain.doFilter(request, response);
     }
 
-    private void checkRefreshTokenAndResetTokens(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        String refreshToken = jwtService.extractRefreshToken(request).orElseThrow(
-                () -> new ServletException("Faild to extract refresh token from request"));
+    private void checkRefreshTokenAndResetTokens(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
         Optional<Member> member = memberRepository.findByRefreshToken(refreshToken);
         if (jwtService.isTokenValid(refreshToken)) {
             member.ifPresentOrElse(m -> {
                         /// Refresh Token Rotate
-                        jwtService.sendTokens(response, jwtService.createAccessToken(m.getUserId()), jwtService.createRefreshToken());
+                        m.updateRefreshToken(refreshToken);
+                        memberRepository.save(m);
+
+                        jwtService.sendTokens(response, jwtService.createAccessToken(m.getId()), jwtService.createRefreshToken());
                     },
                     () -> {
                         throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
                     });
         } else {
             member.ifPresentOrElse(m ->
-                jwtService.deleteTokens(m.getUserId(), response),
+                            jwtService.deleteTokens(m.getId(), response),
                     () -> {
                         throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
                     });
@@ -77,7 +80,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     private void saveAuthentication(Member member) {
         UserDetails user =
                 User.builder()
-                        .username(member.getUserId())
+                        .username(member.getId())
                         .password(member.getPassword())
                         .roles(member.getRole().name())
                         .build();

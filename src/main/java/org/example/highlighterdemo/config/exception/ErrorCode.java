@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 /// 이걸 CustomException 을 사용하여 에러를 내가 정의하고
 /// global handler exception 처리를 해버리면 내가 정의한 오류가 프론트에 똑같이 나가서
 /// 무엇 때문에 서버 오류가 나는지 확인할 수 있음
-/// 아직 글로벌핸들러 안만들었음
 @Getter
 public enum ErrorCode {
     // 400 ~
@@ -19,7 +18,8 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "NOT_FOUND"),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED"),
     // 500 ~
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE");
 
     private final String message;
     private final HttpStatus status;
