@@ -28,6 +28,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 ///     spring security 사용... spring 에서 제공하는 기본 로그인 폼이나 인증/인가를 재정의함
 @Configuration
@@ -40,6 +42,19 @@ public class SecurityConfig {
     private final UserDetailService userDetailService;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
