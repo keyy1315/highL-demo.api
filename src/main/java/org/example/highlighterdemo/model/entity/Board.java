@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.highlighterdemo.config.exception.CustomException;
+import org.example.highlighterdemo.config.exception.ErrorCode;
+import org.example.highlighterdemo.model.entity.enums.Category;
 import org.example.highlighterdemo.model.requestDTO.BoardRequest;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -26,8 +29,9 @@ public class Board {
     @Schema(description = "board pk")
     private String id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Schema(description = "auth")
     private Category category;
 
     @Column
@@ -43,18 +47,22 @@ public class Board {
     private int likes;
 
     @Column
+    @Schema(description = "view count")
+    private int views;
+
+    @Column
     @Schema(description = "video url")
     private String video;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
     @ManyToMany
     @Schema(description = "태그")
     @JoinTable(name = "board_tag",
-    joinColumns = @JoinColumn(name = "board_id"),
-    inverseJoinColumns = @JoinColumn(name = "tag_id"))
+            joinColumns = @JoinColumn(name = "board_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags;
 
     @CreatedDate
@@ -65,11 +73,40 @@ public class Board {
     public static Board create(BoardRequest req, List<Tag> tags, String fileUrl, Member member) {
         return Board.builder()
                 .id(UUID.randomUUID().toString())
+                .category(setCategory(req.category()))
                 .title(req.title())
                 .content(req.content())
                 .member(member)
                 .video(fileUrl)
                 .tags(tags)
                 .build();
+    }
+
+    private static Category setCategory(String category) {
+        return switch (category.toUpperCase()) {
+            case "MASTERY" -> Category.MASTERY;
+            case "ISSUES" -> Category.ISSUES;
+            case "JUDGEMENT" -> Category.JUDGEMENT;
+            default -> throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Invalid category: " + category);
+        };
+    }
+
+    public void updateBoard(String file, BoardRequest boardRequest) {
+        List<Tag> tags = boardRequest.tags().stream().map(Tag::create).toList();
+
+        this.video = file;
+
+        this.title = boardRequest.title();
+        this.content = boardRequest.content();
+        this.tags = tags;
+        this.category = setCategory(boardRequest.category());
+    }
+
+    public void likeBoard() {
+        this.likes++;
+    }
+
+    public void addView() {
+        this.views++;
     }
 }

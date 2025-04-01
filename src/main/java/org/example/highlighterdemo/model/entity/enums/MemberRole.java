@@ -1,4 +1,4 @@
-package org.example.highlighterdemo.model.entity;
+package org.example.highlighterdemo.model.entity.enums;
 
 import lombok.Getter;
 
