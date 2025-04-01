@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class TagService {
     private final TagRepository tagRepository;
 
-    public List<Tag> getTags(List<String> tags) {
+    public List<Tag> setTags(List<String> tags) {
         return tags.stream()
                 .map(tagName -> {
                     Optional<Tag> existingTag = tagRepository.findByName(tagName);
