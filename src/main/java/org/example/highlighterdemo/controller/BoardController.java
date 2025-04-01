@@ -5,12 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.highlighterdemo.config.exception.CustomException;
-import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.config.swagger.annotation.SwaggerBody;
-import org.example.highlighterdemo.model.entity.Board;
 import org.example.highlighterdemo.model.requestDTO.BoardRequest;
 import org.example.highlighterdemo.model.responseDTO.BoardResponse;
 import org.example.highlighterdemo.service.BoardService;
@@ -54,10 +50,18 @@ public class BoardController {
 
     @Operation(description = "게시글 목록 조회")
     @GetMapping
-    public List<BoardResponse> getBoards(@RequestParam("sort") @Parameter(description = "sort : createdDate, view, like") String sort,
+    public List<BoardResponse> getBoards(@RequestParam("category") @Parameter(description = "category") String category,
+                                         @RequestParam("sort") @Parameter(description = "sort : createdDate, view, like") String sort,
                                          @RequestPart("desc") @Parameter(description = "true = desc, false = asc") boolean desc) {
 
-        return boardService.getBoardList(sort, desc).stream()
+        return boardService.getBoardList(category, sort, desc).stream()
+                .map(board -> BoardResponse.create(board, commentService.getCommentCnt(board.getId()))).collect(Collectors.toList());
+    }
+
+    @Operation(description = "팔로우 하는 Member 의 게시글 목록 조회")
+    @GetMapping("/follow}")
+    public List<BoardResponse> getBoardsByFollow(@AuthenticationPrincipal UserDetails user) {
+        return boardService.getBoardsByFollow(user).stream()
                 .map(board -> BoardResponse.create(board, commentService.getCommentCnt(board.getId()))).collect(Collectors.toList());
     }
 
@@ -92,7 +96,7 @@ public class BoardController {
     @Operation(description = "게시글 삭제")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBoard(@AuthenticationPrincipal UserDetails user,@PathVariable String id) {
+    public void deleteBoard(@AuthenticationPrincipal UserDetails user, @PathVariable String id) {
         boardService.deleteBoard(user, id);
     }
 

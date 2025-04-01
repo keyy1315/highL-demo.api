@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import org.example.highlighterdemo.model.entity.Board;
 import org.example.highlighterdemo.model.entity.QBoard;
 import org.example.highlighterdemo.model.entity.QComment;
+import org.example.highlighterdemo.model.entity.enums.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
         this.queryFactory = new JPAQueryFactory(em);
     }
     @Override
-    public List<Board> orderByCommentCnt(boolean desc) {
+    public List<Board> orderByCommentCnt(String category, boolean desc) {
         QComment comment = QComment.comment;
         QBoard board = QBoard.board;
 
@@ -26,6 +27,7 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
                 .selectFrom(board)
                 .leftJoin(comment).on(comment.board.id.eq(board.id))
                 .groupBy(board.id)
+                .where(board.category.eq(Category.valueOf(category)))
                 .orderBy(desc ? comment.count().desc() : comment.count().asc())
                 .fetch();
     }
