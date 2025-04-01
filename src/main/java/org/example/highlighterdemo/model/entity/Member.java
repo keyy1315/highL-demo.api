@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.highlighterdemo.model.entity.enums.MemberRole;
 import org.example.highlighterdemo.model.requestDTO.MemberRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
