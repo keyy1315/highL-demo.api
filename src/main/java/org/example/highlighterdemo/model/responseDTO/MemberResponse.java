@@ -31,6 +31,14 @@ public record MemberResponse(
             tier = member.getGameInfo().getTier();
             iconUrl = member.getGameInfo().getIconUrl();
         }
-        return new MemberResponse(member.getId(), member.getId(), gameName, tagLine, tier, iconUrl, member.isActive(), member.getRole().name());
+        return MemberResponse.builder()
+                .id(member.getId())
+                .gameName(gameName)
+                .tagLine(tagLine)
+                .tier(tier)
+                .iconUrl(iconUrl)
+                .isActive(member.isActive())
+                .role(member.getRole().getValue())
+                .build();
     }
 }
