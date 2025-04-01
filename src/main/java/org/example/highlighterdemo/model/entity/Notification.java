@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.highlighterdemo.model.entity.enums.NotificationAction;
+import org.example.highlighterdemo.model.requestDTO.NotificationRequest;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +25,7 @@ public class Notification {
     private String id;
     @Column
     @Schema(description = "action")
-    private Action action;
+    private NotificationAction action;
     @Column
     @Schema(description = "created time")
     private LocalDateTime createdDate;
@@ -31,9 +34,25 @@ public class Notification {
     private String url;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
-    private Member member;
+    private Member sender;
+    @Column(nullable = false)
+    private String receiver;
+    @Column(nullable = false)
+    private boolean isRead;
 
-    enum Action {
-        LIKE, COMMENT, FOLLOW;
+    public static Notification create(Member member, NotificationAction action, NotificationRequest req, String receiver) {
+        String url = "/";
+        if("comment".equals(req.referenceType())) url += "board/" + req.referenceId();
+        else url += req.referenceType() + "/" + req.referenceId();
+
+        return Notification.builder()
+                .id(UUID.randomUUID().toString())
+                .action(action)
+                .createdDate(LocalDateTime.now())
+                .url(url)
+                .sender(member)
+                .receiver(receiver)
+                .isRead(false)
+                .build();
     }
 }
