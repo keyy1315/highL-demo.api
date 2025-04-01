@@ -1,6 +1,8 @@
 package org.example.highlighterdemo.model.responseDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.example.highlighterdemo.config.exception.CustomException;
+import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.model.entity.Comment;
 
 import java.time.LocalDateTime;
@@ -13,12 +15,16 @@ public record CommentResponse(
         @Schema(description = "like count") int likes,
         @Schema(description = "member's id") MemberResponse member,
         @Schema(description = "date") LocalDateTime createdDate,
+        @Schema(description = "parent Comment Id") String parentCommentId,
         @Schema(description = "child comments") List<CommentResponse> childComments
 ) {
-
-    public static CommentResponse create(Comment comment) {
-        return new CommentResponse(comment.getId(),
-                comment.getContent(), comment.getLikes(), MemberResponse.create(comment.getMember()),
-                comment.getCreatedDate(), null);
+    public static CommentResponse fromChild(Comment parent, List<CommentResponse> children) {
+        if (parent == null && children == null) return null;
+        if (parent != null) {
+            return new CommentResponse(parent.getId(), parent.getContent(), parent.getLikes(), MemberResponse.create(parent.getMember()),
+                    parent.getCreatedDate(), parent.getParentComment().getId(), children);
+        } else {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "parent is null");
+        }
     }
 }
