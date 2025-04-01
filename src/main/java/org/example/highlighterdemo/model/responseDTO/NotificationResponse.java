@@ -19,7 +19,7 @@ public record NotificationResponse(
                 .action(String.valueOf(notification.getAction()))
                 .createdDate(notification.getCreatedDate())
                 .url(notification.getUrl())
-                .sender(MemberResponse.create(notification.getMember()))
+                .sender(MemberResponse.create(notification.getSender()))
                 .build();
     }
 }

@@ -1,11 +1,9 @@
 package org.example.highlighterdemo.model.requestDTO;
 
-import java.time.LocalDateTime;
+import io.swagger.v3.oas.annotations.Operation;
 
 public record NotificationRequest(
-        String id,
-        String memberId,
-        String action,
-        LocalDateTime time,
-        String url
-) {}
+        @Operation(description = "comment / board / member")
+        String referenceType,
+        String referenceId,
+        String commentId) {}
