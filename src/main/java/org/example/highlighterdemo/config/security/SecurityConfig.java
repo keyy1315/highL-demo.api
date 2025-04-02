@@ -42,6 +42,7 @@ public class SecurityConfig {
     private final UserDetailService userDetailService;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -49,6 +50,7 @@ public class SecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOriginPatterns("*")
+                        .allowedHeaders("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowCredentials(true);
             }
@@ -69,7 +71,8 @@ public class SecurityConfig {
                                 a.requestMatchers(
                                                 new AntPathRequestMatcher("/h2-console/**"),
                                                 new AntPathRequestMatcher("/swagger-ui/**"),
-                                                new AntPathRequestMatcher("/v3/api-docs/**")
+                                                new AntPathRequestMatcher("/v3/api-docs/**"),
+                                                new AntPathRequestMatcher("/ws/**")
                                         ).permitAll()
                                         .requestMatchers(
                                                 new AntPathRequestMatcher("/login"),
@@ -89,7 +92,7 @@ public class SecurityConfig {
     }
 
 
-///    빈 등록...
+    ///    빈 등록...
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
         return new JwtAuthenticationProcessingFilter(jwtService, memberRepository);

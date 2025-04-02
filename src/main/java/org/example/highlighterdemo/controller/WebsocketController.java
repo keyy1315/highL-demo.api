@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @RequiredArgsConstructor
-@Tag(name = "WebsocketController", description = "websocket")
 public class WebsocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -27,7 +26,6 @@ public class WebsocketController {
      * 2. 로그인 한 사용자 댓글/좋아요/팔로우 하면 실시간으로 /app/comment.add ... 로 데이터 받음
      * 3. receiver 가 로그인 되어 있으면 실시간으로 알림 감
      */
-    @Operation(description = "댓글 작성 알림")
     @MessageMapping("/comment.add")
     public void addComment(@AuthenticationPrincipal UserDetails user, NotificationRequest req) {
         Member receiver = notificationService.getReceiver(req);
@@ -35,11 +33,5 @@ public class WebsocketController {
                 notificationService.setNotification(user.getUsername(), NotificationAction.COMMENT, req, receiver.getId()));
 
         messagingTemplate.convertAndSend("/notifications/" + receiver.getId(), notiResponse);
-    }
-
-    @Operation(description = "댓글 읽음 처리")
-    @MessageMapping("/notification.read")
-    public void readNotification(String id) {
-
     }
 }
