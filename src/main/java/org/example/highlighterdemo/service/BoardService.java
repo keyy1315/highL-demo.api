@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,19 +103,26 @@ public class BoardService {
         Board board = findBoardById(id);
         board.likeBoard();
     }
+    @Transactional
+    public void unlikeBoard(String id) {
+        Board board = findBoardById(id);
+        board.unlikeBoard();
+    }
 
     private Board findBoardById(String id) {
         return boardRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find board"));
     }
 
-    public List<Board> getBoardsByFollow(UserDetails user) {
+    public List<Board> getBoardsByFollow(UserDetails user, String category, String sort, boolean desc) {
+
         if (user == null) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "user is null");
         Member member = memberRepository.findById(user.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find user"));
         List<Member> myFollowList = member.getFollowings();
 
-        return myFollowList.stream()
-                .flatMap(mem -> boardRepository.findAllByMember(mem).stream())
-                .sorted(Comparator.comparing(Board::getCreatedDate).reversed())
+        List<Board> filteringList = getBoardList(category, sort, desc);
+
+        return filteringList.stream()
+                .filter(board -> myFollowList.contains(board.getMember()))
                 .toList();
     }
 }

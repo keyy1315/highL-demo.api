@@ -46,7 +46,7 @@ public class BoardController {
     public void setBoard(@AuthenticationPrincipal UserDetails user,
                          @RequestPart(value = "file", required = false) @Parameter(description = "static file") MultipartFile file,
                          @RequestPart("dto") @Parameter(description = "category:judgement/issues/mastery") BoardRequest boardRequest) throws IOException {
-        if(user == null) throw new CustomException(ErrorCode.FORBIDDEN, "To post your board, please login first");
+        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "To post your board, please login first");
         String fileUrl = s3Service.uploadFile(file);
         boardService.setBoard(boardRequest, user.getUsername(), fileUrl);
     }
@@ -63,8 +63,12 @@ public class BoardController {
 
     @Operation(description = "팔로우 하는 Member 의 게시글 목록 조회")
     @GetMapping("/follow")
-    public List<BoardResponse> getBoardsByFollow(@AuthenticationPrincipal UserDetails user) {
-        return boardService.getBoardsByFollow(user).stream()
+    public List<BoardResponse> getBoardsByFollow(@AuthenticationPrincipal UserDetails user,
+                                                 @RequestParam(value = "category", required = false) @Parameter(description = "category : mastery, issues, judgement") String category,
+                                                 @RequestParam(value = "sort", required = false) @Parameter(description = "sort : createdDate, views, likes") String sort,
+                                                 @RequestParam(value = "desc") @Parameter(description = "true = desc, false = asc") boolean desc
+    ) {
+        return boardService.getBoardsByFollow(user, category, sort, desc).stream()
                 .map(board -> BoardResponse.create(board, commentService.getCommentCnt(board.getId()))).collect(Collectors.toList());
     }
 
@@ -99,18 +103,26 @@ public class BoardController {
         boardService.updateBoard(user.getUsername(), id, fileUrl, boardRequest);
     }
 
+    @Operation(description = "게시글 좋아요")
+    @PatchMapping("/like/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void likeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
+        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "like this video, please login first");
+        boardService.likeBoard(id);
+    }
+
+    @Operation(description = "게시글 좋아요 취소")
+    @PatchMapping("/unlike/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void unlikeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
+        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "unlike this video, please login first");
+        boardService.unlikeBoard(id);
+    }
+
     @Operation(description = "게시글 삭제")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBoard(@AuthenticationPrincipal UserDetails user, @PathVariable String id) {
         boardService.deleteBoard(user, id);
-    }
-
-    @Operation(description = "게시글 좋아요")
-    @PatchMapping("/like/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void likeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
-        if(user == null) throw new CustomException(ErrorCode.FORBIDDEN, "like this video, please login first");
-        boardService.likeBoard(id);
     }
 }

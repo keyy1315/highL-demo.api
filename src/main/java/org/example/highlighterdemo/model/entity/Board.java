@@ -105,6 +105,10 @@ public class Board {
         this.likes++;
     }
 
+    public void unlikeBoard() {
+        this.likes--;
+    }
+
     public void addView() {
         this.views++;
     }
