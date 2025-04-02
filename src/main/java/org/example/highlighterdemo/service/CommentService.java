@@ -38,10 +38,11 @@ public class CommentService {
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find member"));
         Board board = boardRepository.findById(commentRequest.boardId()).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find board"));
-        Comment parentComment = Optional.ofNullable(commentRequest.parentId())
-                .flatMap(commentRepository::findById)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment parent"));
-
+        Comment parentComment = null;
+        if (commentRequest.parentId() != null) {
+            parentComment = commentRepository.findById(commentRequest.parentId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment parent"));
+        }
         Comment comment = Comment.create(member, board, commentRequest.content(), parentComment);
         commentRepository.save(comment);
     }
@@ -58,14 +59,17 @@ public class CommentService {
     public List<CommentResponse> getCommentList(String boardId, String sort, boolean asc) {
         List<Comment> comments = getCommentsWithOption(boardId, sort, asc);
 
-        List<Comment> parentComments = comments.stream().filter(c -> c.getParentComment().getId() == null).toList();
+        List<Comment> parentComments = comments.stream().filter(c -> c.getParentComment() == null).toList();
 
         return parentComments.stream().map(p -> buildHierarchy(p, comments)).toList();
     }
 
     private CommentResponse buildHierarchy(Comment p, List<Comment> comments) {
         List<CommentResponse> childComments = comments.stream()
-                .filter(c -> Objects.equals(c.getParentComment().getId(), p.getId()))
+                .filter(c -> {
+                    if(c.getParentComment() == null) return false;
+                    return Objects.equals(c.getParentComment().getId(), p.getId());
+                })
                 .map(child -> buildHierarchy(child, comments))
                 .toList();
         return CommentResponse.fromChild(p, childComments);

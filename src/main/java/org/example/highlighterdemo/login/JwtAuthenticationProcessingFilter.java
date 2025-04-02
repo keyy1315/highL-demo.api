@@ -61,6 +61,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                         /// Refresh Token Rotate
                         String newRefreshToken = jwtService.createRefreshToken();
                         m.updateRefreshToken(newRefreshToken);
+                        memberRepository.save(m);
 
                         jwtService.sendTokens(response, jwtService.createAccessToken(m.getId()), newRefreshToken);
                     },

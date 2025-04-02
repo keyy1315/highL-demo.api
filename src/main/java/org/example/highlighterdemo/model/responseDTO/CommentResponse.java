@@ -21,8 +21,12 @@ public record CommentResponse(
     public static CommentResponse fromChild(Comment parent, List<CommentResponse> children) {
         if (parent == null && children == null) return null;
         if (parent != null) {
+            String parentCommentId = (parent.getParentComment() != null)
+                    ? parent.getParentComment().getId()
+                    : null;
+
             return new CommentResponse(parent.getId(), parent.getContent(), parent.getLikes(), MemberResponse.create(parent.getMember()),
-                    parent.getCreatedDate(), parent.getParentComment().getId(), children);
+                    parent.getCreatedDate(), parentCommentId, children);
         } else {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "parent is null");
         }
