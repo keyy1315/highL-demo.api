@@ -37,4 +37,9 @@ public class WebsocketController {
         messagingTemplate.convertAndSend("/notifications/" + receiver.getId(), notiResponse);
     }
 
+    @Operation(description = "댓글 읽음 처리")
+    @MessageMapping("/notification.read")
+    public void readNotification(String id) {
+
+    }
 }

@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.example.highlighterdemo.config.exception.CustomException;
+import org.example.highlighterdemo.config.exception.ErrorCode;
 import org.example.highlighterdemo.config.swagger.annotation.SwaggerBody;
 import org.example.highlighterdemo.model.requestDTO.BoardRequest;
 import org.example.highlighterdemo.model.responseDTO.BoardResponse;
@@ -43,23 +45,24 @@ public class BoardController {
     @ResponseStatus(HttpStatus.CREATED)
     public void setBoard(@AuthenticationPrincipal UserDetails user,
                          @RequestPart(value = "file", required = false) @Parameter(description = "static file") MultipartFile file,
-                         @RequestPart("dto") @Parameter(description = "board create dto") BoardRequest boardRequest) throws IOException {
+                         @RequestPart("dto") @Parameter(description = "category:judgement/issues/mastery") BoardRequest boardRequest) throws IOException {
+        if(user == null) throw new CustomException(ErrorCode.FORBIDDEN, "To post your board, please login first");
         String fileUrl = s3Service.uploadFile(file);
         boardService.setBoard(boardRequest, user.getUsername(), fileUrl);
     }
 
-    @Operation(description = "게시글 목록 조회")
+    @Operation(description = "게시글 목록 조회 <br> Default : createdDate desc")
     @GetMapping
-    public List<BoardResponse> getBoards(@RequestParam("category") @Parameter(description = "category") String category,
-                                         @RequestParam("sort") @Parameter(description = "sort : createdDate, view, like") String sort,
-                                         @RequestPart("desc") @Parameter(description = "true = desc, false = asc") boolean desc) {
+    public List<BoardResponse> getBoards(@RequestParam(value = "category", required = false) @Parameter(description = "category : mastery, issues, judgement") String category,
+                                         @RequestParam(value = "sort", required = false) @Parameter(description = "sort : createdDate, views, likes") String sort,
+                                         @RequestParam(value = "desc") @Parameter(description = "true = desc, false = asc") boolean desc) {
 
         return boardService.getBoardList(category, sort, desc).stream()
                 .map(board -> BoardResponse.create(board, commentService.getCommentCnt(board.getId()))).collect(Collectors.toList());
     }
 
     @Operation(description = "팔로우 하는 Member 의 게시글 목록 조회")
-    @GetMapping("/follow}")
+    @GetMapping("/follow")
     public List<BoardResponse> getBoardsByFollow(@AuthenticationPrincipal UserDetails user) {
         return boardService.getBoardsByFollow(user).stream()
                 .map(board -> BoardResponse.create(board, commentService.getCommentCnt(board.getId()))).collect(Collectors.toList());
@@ -84,7 +87,10 @@ public class BoardController {
     }
 
     @Operation(description = "게시글 수정")
-    @PatchMapping("/{id}")
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "dto", contentType = MediaType.APPLICATION_JSON_VALUE)
+    ))
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void updateBoard(@AuthenticationPrincipal UserDetails user, @PathVariable String id,
                             @RequestPart(value = "file", required = false) MultipartFile file,
@@ -103,7 +109,8 @@ public class BoardController {
     @Operation(description = "게시글 좋아요")
     @PatchMapping("/like/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void likeBoard(@PathVariable String id) {
+    public void likeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
+        if(user == null) throw new CustomException(ErrorCode.FORBIDDEN, "like this video, please login first");
         boardService.likeBoard(id);
     }
 }

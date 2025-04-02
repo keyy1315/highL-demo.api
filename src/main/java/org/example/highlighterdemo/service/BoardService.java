@@ -40,21 +40,37 @@ public class BoardService {
 
     ///  sort : "createdDate", "view", "likes", "comments"
     public List<Board> getBoardList(String category, String sort, boolean desc) {
-        if (sort == null) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "sort is null");
-        if (!"createdDate".equals(sort) && !"view".equals(sort) && !"likes".equals(sort) && !"comments".equals(sort)) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "sort is invalid");
+        if (sort == null && category == null) {
+            if(desc)return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
+            return boardRepository.findAll(Sort.by(Sort.Direction.ASC, "createdDate"));
         }
+        if(category == null) {
+            if(desc)return boardRepository.findAll(Sort.by(Sort.Direction.DESC, sort));
+            return boardRepository.findAll(Sort.by(Sort.Direction.ASC, sort));
+        }
+        if(!"mastery".equals(category) && !"judgement".equals(category) && !"issues".equals(category)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "category is invalid : " + category);
+        }
+        if(sort == null) {
+            if(desc)return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.DESC, "createdDate"));
+            return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC,"createdDate"));
+        }
+        if (!"createdDate".equals(sort) && !"views".equals(sort) && !"likes".equals(sort) && !"comments".equals(sort)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "sort is invalid : " + sort);
+        }
+
         if ("comments".equals(sort)) {
             return boardRepository.orderByCommentCnt(category, desc);
         } else if (desc)
-            return boardRepository.findAllByCategory(Category.valueOf(category), Sort.by(Sort.Direction.DESC, sort));
-        else return boardRepository.findAllByCategory(Category.valueOf(category), Sort.by(Sort.Direction.ASC, sort));
+            return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.DESC, sort));
+        else return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC, sort));
     }
 
+    @Transactional
     public Board getBoards(String id) {
         Board board = findBoardById(id);
         board.addView();
-        return board;
+        return boardRepository.save(board);
     }
 
     @Transactional
@@ -64,7 +80,9 @@ public class BoardService {
         if (!Objects.equals(board.getMember().getId(), username))
             throw new CustomException(ErrorCode.FORBIDDEN, "you do not have permission to update this board");
 
-        board.updateBoard(file, boardRequest);
+        List<Tag> tagList = tagService.setTags(boardRequest.tags());
+
+        board.updateBoard(file, boardRequest, tagList);
     }
 
     @Transactional

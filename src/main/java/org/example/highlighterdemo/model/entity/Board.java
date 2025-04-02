@@ -54,11 +54,11 @@ public class Board {
     @Schema(description = "video url")
     private String video;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @Schema(description = "태그")
     @JoinTable(name = "board_tag",
             joinColumns = @JoinColumn(name = "board_id"),
@@ -79,6 +79,7 @@ public class Board {
                 .member(member)
                 .video(fileUrl)
                 .tags(tags)
+                .createdDate(LocalDateTime.now())
                 .build();
     }
 
@@ -91,9 +92,7 @@ public class Board {
         };
     }
 
-    public void updateBoard(String file, BoardRequest boardRequest) {
-        List<Tag> tags = boardRequest.tags().stream().map(Tag::create).toList();
-
+    public void updateBoard(String file, BoardRequest boardRequest, List<Tag> tags) {
         this.video = file;
 
         this.title = boardRequest.title();
