@@ -93,4 +93,20 @@ public class MemberService {
         return member.getGameInfo() != null;
     }
 
+    public void followMember(String userId, String username) {
+        if (userId == null || username == null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "you must be login or input the follow id to follow");
+        }
+        if (userId.equals(username)) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "can't follow me");
+        Member loginMember = memberRepository.findById(username).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id : " + username));
+        Member toFollowMember = memberRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id : " + userId));
+
+        loginMember.toFollowing(toFollowMember);
+        toFollowMember.toFollower(loginMember);
+
+        memberRepository.save(loginMember);
+        memberRepository.save(toFollowMember);
+    }
 }

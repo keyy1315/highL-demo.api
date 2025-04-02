@@ -64,4 +64,11 @@ public class MemberController {
     public MemberResponse getUsersByUserId(@PathVariable String userId) {
         return MemberResponse.create(memberService.getUsersByUserId(userId));
     }
+
+    @Operation(description = "팔로우")
+    @PatchMapping("/follow/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void followMember(@PathVariable String userId, @AuthenticationPrincipal UserDetails userDetails) {
+        memberService.followMember(userId, userDetails.getUsername());
+    }
 }

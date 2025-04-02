@@ -110,7 +110,7 @@ public class BoardService {
     public List<Board> getBoardsByFollow(UserDetails user) {
         if (user == null) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "user is null");
         Member member = memberRepository.findById(user.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find user"));
-        List<Member> myFollowList = member.getMember();
+        List<Member> myFollowList = member.getFollowings();
 
         return myFollowList.stream()
                 .flatMap(mem -> boardRepository.findAllByMember(mem).stream())

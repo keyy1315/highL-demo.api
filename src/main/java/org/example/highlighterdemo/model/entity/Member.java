@@ -42,10 +42,18 @@ public class Member {
     @Schema(description = "refresh token")
     private String refreshToken;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "follow_id", referencedColumnName = "id")
-    @Schema(description = "following members")
-    private List<Member> member;
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(
+            name = "member_following",
+            joinColumns = @JoinColumn(name = "follower_id"),
+            inverseJoinColumns = @JoinColumn(name = "following_id")
+    )
+    @Schema(description = "my following")
+    private List<Member> followings;
+
+    @ManyToMany(mappedBy = "followings")
+    @Schema(description = "followers")
+    private List<Member> followers;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "game_info_id", referencedColumnName = "id")
@@ -81,5 +89,14 @@ public class Member {
 
     public void updateGameInfo(GameInfo info) {
         this.gameInfo = info;
+    }
+
+
+    public void toFollowing(Member toFollowMember) {
+        this.followings.add(toFollowMember);
+    }
+
+    public void toFollower(Member loginMember) {
+        this.followers.add(loginMember);
     }
 }
