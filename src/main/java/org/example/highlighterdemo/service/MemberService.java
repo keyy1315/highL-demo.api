@@ -34,14 +34,14 @@ public class MemberService {
 
     @Transactional
     public Member signup(MemberRequest req) {
-        if (memberRepository.existsById(req.id())) {
+        if (memberRepository.existsById(req.userId())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist User Id");
         }
         Member member = Member.create(req);
         try {
             memberRepository.save(member);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "error while saving member");
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "회원 정보를 저장하는 중에 오류가 발생했습니다.");
         }
         return member;
     }

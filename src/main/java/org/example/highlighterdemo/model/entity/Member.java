@@ -62,7 +62,7 @@ public class Member {
 
     public static Member create(MemberRequest req) {
         return Member.builder()
-                .id(req.id())
+                .id(req.userId())
                 .password(pwEncoder(req.password()))
                 .role(setMemberRole(""))
                 .isActive(true)

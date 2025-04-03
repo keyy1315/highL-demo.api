@@ -54,7 +54,7 @@ public class Board {
     @Schema(description = "video url")
     private String video;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
