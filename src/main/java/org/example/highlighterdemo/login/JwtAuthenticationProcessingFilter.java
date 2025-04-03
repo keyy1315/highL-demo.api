@@ -63,7 +63,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                         m.updateRefreshToken(newRefreshToken);
                         memberRepository.save(m);
 
-                        jwtService.sendTokens(response, jwtService.createAccessToken(m.getId()), newRefreshToken);
+                        jwtService.sendTokens(request,response, jwtService.createAccessToken(m.getId()), newRefreshToken);
                     },
                     () -> {
                         throw new CustomException(ErrorCode.UNAUTHORIZED, "cannot find user with refresh token");

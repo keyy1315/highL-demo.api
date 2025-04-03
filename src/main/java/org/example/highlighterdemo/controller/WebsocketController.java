@@ -29,6 +29,9 @@ public class WebsocketController {
     @MessageMapping("/comment.add")
     public void addComment(@AuthenticationPrincipal UserDetails user, NotificationRequest req) {
         Member receiver = notificationService.getReceiver(req);
+
+        if(receiver.getId().equals(user.getUsername())) return;
+
         NotificationResponse notiResponse = NotificationResponse.create(
                 notificationService.setNotification(user.getUsername(), NotificationAction.COMMENT, req, receiver.getId()));
 

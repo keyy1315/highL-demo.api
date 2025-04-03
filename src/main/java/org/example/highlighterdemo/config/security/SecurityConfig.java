@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .sessionManagement((s) -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
@@ -76,12 +77,15 @@ public class SecurityConfig {
                                         ).permitAll()
                                         .requestMatchers(
                                                 new AntPathRequestMatcher("/login"),
+                                                new AntPathRequestMatcher("/logout"),
+                                                new AntPathRequestMatcher("/auth"),
                                                 new AntPathRequestMatcher("/api/**"),
                                                 new AntPathRequestMatcher("/error")
                                         ).permitAll()
 //                                        위에 명시한 url 은 아무 권한 없이도 사용 가능함
                                         .anyRequest()
                                         .authenticated())
+                .logout(AbstractHttpConfigurer::disable)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 //                Authentication 401 에러 엔트리포인트 사용
                 .addFilterBefore(jwtAuthenticationProcessingFilter(), LogoutFilter.class)

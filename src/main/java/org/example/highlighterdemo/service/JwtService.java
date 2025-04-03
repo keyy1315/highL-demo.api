@@ -83,7 +83,9 @@ public class JwtService {
 
     ///     생성된 토큰을 클라이언트의 쿠키에 전달하는 메소드
     ///     HttpOnly 옵션과 SameSite 속성을 설정하여 보안성을 높임
-    public void sendTokens(HttpServletResponse response, String accessToken, String refreshToken) {
+    public void sendTokens(HttpServletRequest request,HttpServletResponse response, String accessToken, String refreshToken) {
+        boolean isLocal = request.getServerName().equals("localhost");
+
         Cookie accessCookie = new Cookie(ACCESS_TOKEN_SUBJECT, accessToken);
         accessCookie.setPath("/");
         accessCookie.setHttpOnly(true);

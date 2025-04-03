@@ -25,7 +25,7 @@ public class LoginSuccessJWTProviderHandler extends SimpleUrlAuthenticationSucce
         String accessToken = jwtService.createAccessToken(userId);
         String refreshToken = jwtService.createRefreshToken();
 
-        jwtService.sendTokens(response, accessToken, refreshToken);
+        jwtService.sendTokens(request, response, accessToken, refreshToken);
 
         Member member = memberRepository.findById(userId).orElse(null);
         Objects.requireNonNull(member).updateRefreshToken(refreshToken);
