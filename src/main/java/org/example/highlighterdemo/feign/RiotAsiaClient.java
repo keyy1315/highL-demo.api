@@ -32,7 +32,7 @@ public interface RiotAsiaClient {
 
         @Override
         public ResponseEntity<Map<String, String>> getPUuid(String gameName, String tagLine) {
-            throw new CustomException(ErrorCode.SERVICE_UNAVAILABLE, "Feign Fallback : getPuuid failed");
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "RIOT API ERROR : getPuuid failed");
         }
     }
 }

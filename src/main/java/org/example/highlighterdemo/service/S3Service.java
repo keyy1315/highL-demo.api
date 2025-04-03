@@ -87,7 +87,7 @@ public class S3Service {
                 outputStream.write(buffer, 0, len);
             }
         }catch (IOException e) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "failed to get file");
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "S3 ERROR : failed to get file");
         }
     }
 }

@@ -68,7 +68,7 @@ public class JwtService {
                     memberRepository.save(member);
                 },
         () -> {
-            throw new CustomException(ErrorCode.FORBIDDEN, "Not found user");
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "Not found user");
         });
         Cookie accessTokenCookie = new Cookie(ACCESS_TOKEN_SUBJECT, null);
         accessTokenCookie.setPath("/");

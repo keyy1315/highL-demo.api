@@ -66,15 +66,15 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                         jwtService.sendTokens(response, jwtService.createAccessToken(m.getId()), newRefreshToken);
                     },
                     () -> {
-                        throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
+                        throw new CustomException(ErrorCode.UNAUTHORIZED, "cannot find user with refresh token");
                     });
         } else {
             member.ifPresentOrElse(m ->
                             jwtService.deleteTokens(m.getId(), response),
                     () -> {
-                        throw new CustomException(ErrorCode.FORBIDDEN, "cannot find user with refresh token");
+                        throw new CustomException(ErrorCode.UNAUTHORIZED, "cannot find user with refresh token");
                     });
-            throw new CustomException(ErrorCode.FORBIDDEN, "Invalid refresh token");
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "Invalid refresh token");
         }
     }
 

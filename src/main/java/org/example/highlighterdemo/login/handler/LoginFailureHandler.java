@@ -19,7 +19,7 @@ public class LoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
             response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         } else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Authentication failed: " + err);
+            response.getWriter().write("존재하지 않는 아이디 혹은 비밀번호가 틀렸습니다.");
         }
     }
 }

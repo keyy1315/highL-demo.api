@@ -46,7 +46,7 @@ public class BoardController {
     public void setBoard(@AuthenticationPrincipal UserDetails user,
                          @RequestPart(value = "file", required = false) @Parameter(description = "static file") MultipartFile file,
                          @RequestPart("dto") @Parameter(description = "category:judgement/issues/mastery") BoardRequest boardRequest) throws IOException {
-        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "To post your board, please login first");
+        if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED, "To post your board, please login first");
         String fileUrl = s3Service.uploadFile(file);
         boardService.setBoard(boardRequest, user.getUsername(), fileUrl);
     }
@@ -107,7 +107,7 @@ public class BoardController {
     @PatchMapping("/like/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void likeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "like this video, please login first");
+        if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED, "like this video, please login first");
         boardService.likeBoard(id);
     }
 
@@ -115,7 +115,7 @@ public class BoardController {
     @PatchMapping("/unlike/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void unlikeBoard(@PathVariable String id, @AuthenticationPrincipal UserDetails user) {
-        if (user == null) throw new CustomException(ErrorCode.FORBIDDEN, "unlike this video, please login first");
+        if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED, "unlike this video, please login first");
         boardService.unlikeBoard(id);
     }
 

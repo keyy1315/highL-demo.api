@@ -34,12 +34,12 @@ public interface RiotClient {
     class FallbackWithFactory implements RiotClient {
         @Override
         public ResponseEntity<SummonerDTO> getSummoner(String puuid) {
-           throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Feign Fallback : getSummoner failed");
+           throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "GET RIOT API ERROR : getSummoner failed");
         }
 
         @Override
         public ResponseEntity<Set<LeagueEntryDTO>> getLeagueEntry(String encryptedSummonerId) {
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Feign Fallback : getLeagueEntry failed");
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "GET RIOT API ERROR : getLeagueEntry failed");
         }
     }
 }

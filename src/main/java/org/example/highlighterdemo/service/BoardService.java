@@ -16,8 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +115,7 @@ public class BoardService {
 
     public List<Board> getBoardsByFollow(UserDetails user, String category, String sort, boolean desc) {
 
-        if (user == null) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "user is null");
+        if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED, "To Read Your following Member's video, Login First");
         Member member = memberRepository.findById(user.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find user"));
         List<Member> myFollowList = member.getFollowings();
 
