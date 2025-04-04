@@ -58,6 +58,7 @@ public class Comment {
                 .content(content)
                 .member(member)
                 .board(board)
+                .createdDate(LocalDateTime.now())
                 .build();
     }
 
