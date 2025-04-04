@@ -42,19 +42,20 @@ public class BoardService {
     ///  sort : "createdDate", "view", "likes", "comments"
     public List<Board> getBoardList(String category, String sort, boolean desc) {
         if (sort == null && category == null) {
-            if(desc)return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
+            if (desc) return boardRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
             return boardRepository.findAll(Sort.by(Sort.Direction.ASC, "createdDate"));
         }
-        if(category == null) {
-            if(desc)return boardRepository.findAll(Sort.by(Sort.Direction.DESC, sort));
+        if (category == null) {
+            if (desc) return boardRepository.findAll(Sort.by(Sort.Direction.DESC, sort));
             return boardRepository.findAll(Sort.by(Sort.Direction.ASC, sort));
         }
-        if(!"mastery".equals(category) && !"judgement".equals(category) && !"issues".equals(category)) {
+        if (!"mastery".equals(category) && !"judgement".equals(category) && !"issues".equals(category)) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "category is invalid : " + category);
         }
-        if(sort == null) {
-            if(desc)return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.DESC, "createdDate"));
-            return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC,"createdDate"));
+        if (sort == null) {
+            if (desc)
+                return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.DESC, "createdDate"));
+            return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC, "createdDate"));
         }
         if (!"createdDate".equals(sort) && !"views".equals(sort) && !"likes".equals(sort) && !"comments".equals(sort)) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "sort is invalid : " + sort);
@@ -64,7 +65,8 @@ public class BoardService {
             return boardRepository.orderByCommentCnt(category, desc);
         } else if (desc)
             return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.DESC, sort));
-        else return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC, sort));
+        else
+            return boardRepository.findAllByCategory(Category.getCategory(category), Sort.by(Sort.Direction.ASC, sort));
     }
 
     @Transactional
@@ -103,6 +105,7 @@ public class BoardService {
         Board board = findBoardById(id);
         board.likeBoard();
     }
+
     @Transactional
     public void unlikeBoard(String id) {
         Board board = findBoardById(id);
@@ -115,7 +118,8 @@ public class BoardService {
 
     public List<Board> getBoardsByFollow(UserDetails user, String category, String sort, boolean desc) {
 
-        if (user == null) throw new CustomException(ErrorCode.UNAUTHORIZED, "To Read Your following Member's video, Login First");
+        if (user == null)
+            throw new CustomException(ErrorCode.UNAUTHORIZED, "To Read Your following Member's video, Login First");
         Member member = memberRepository.findById(user.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find user"));
         List<Member> myFollowList = member.getFollowings();
 
@@ -124,5 +128,9 @@ public class BoardService {
         return filteringList.stream()
                 .filter(board -> myFollowList.contains(board.getMember()))
                 .toList();
+    }
+
+    public Board getBoardById(String id) {
+        return boardRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "cannot find board"));
     }
 }

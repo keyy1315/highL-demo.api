@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationAction {
-    LIKE("like"), COMMENT("comment"), FOLLOW("follow");
+    LIKE("like"), COMMENT("comment"), FOLLOW("follow"), MENTION("mention");
     private final String value;
 
     private NotificationAction(String value) {

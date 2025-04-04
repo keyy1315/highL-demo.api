@@ -32,7 +32,7 @@ public class Notification {
     @Column
     @Schema(description = "url for route")
     private String url;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private Member sender;
     @Column(nullable = false)
@@ -40,19 +40,23 @@ public class Notification {
     @Column(nullable = false)
     private boolean isRead;
 
-    public static Notification create(Member member, NotificationAction action, NotificationRequest req, String receiver) {
+    public static Notification create(Member member, NotificationRequest req, String receiver) {
         String url = "/";
-        if("comment".equals(req.referenceType())) url += "board/" + req.referenceId();
+        if ("comment".equals(req.referenceType())) url += "board/" + req.referenceId();
         else url += req.referenceType() + "/" + req.referenceId();
 
         return Notification.builder()
                 .id(UUID.randomUUID().toString())
-                .action(action)
+                .action(req.action())
                 .createdDate(LocalDateTime.now())
                 .url(url)
                 .sender(member)
                 .receiver(receiver)
                 .isRead(false)
                 .build();
+    }
+
+    public void readNotification() {
+        this.isRead = true;
     }
 }

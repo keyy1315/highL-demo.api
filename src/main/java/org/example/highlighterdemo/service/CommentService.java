@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +93,9 @@ public class CommentService {
                 comment.getMember().getId().equals(user.getUsername())) {
             commentRepository.delete(comment);
         }
+    }
+
+    public Comment getCommentById(String id) {
+        return commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment"));
     }
 }

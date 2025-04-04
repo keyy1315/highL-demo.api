@@ -109,4 +109,8 @@ public class MemberService {
         memberRepository.save(loginMember);
         memberRepository.save(toFollowMember);
     }
+
+    public boolean existById(String receiver) {
+        return memberRepository.existsById(receiver);
+    }
 }
