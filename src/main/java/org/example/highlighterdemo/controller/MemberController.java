@@ -65,6 +65,13 @@ public class MemberController {
         return MemberResponse.create(memberService.getUsersByUserId(userId));
     }
 
+    @Operation(description = "로그인 한 회원 정보 조회")
+    @GetMapping("/get")
+    public MemberResponse getUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if(userDetails == null) return null;
+        return MemberResponse.create(memberService.getUsersByUserId(userDetails.getUsername()));
+    }
+
     @Operation(description = "팔로우")
     @PatchMapping("/follow/{userId}")
     @ResponseStatus(HttpStatus.OK)

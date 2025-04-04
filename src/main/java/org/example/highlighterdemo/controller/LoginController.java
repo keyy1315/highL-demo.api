@@ -1,7 +1,6 @@
 package org.example.highlighterdemo.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.highlighterdemo.model.requestDTO.LoginRequest;
@@ -32,7 +31,7 @@ public class LoginController {
         if (userDetails != null) {
             return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok(false);
         }
     }
 
