@@ -23,24 +23,34 @@ public class Notification {
     @Id
     @Schema(description = "notification pk")
     private String id;
+
+    @Enumerated(EnumType.STRING)
     @Column
     @Schema(description = "action")
     private NotificationAction action;
+
     @Column
     @Schema(description = "created time")
     private LocalDateTime createdDate;
+
     @Column
     @Schema(description = "url for route")
     private String url;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", referencedColumnName = "id")
     private Member sender;
+
     @Column(nullable = false)
     private String receiver;
+
+    @Column
+    private String description;
+
     @Column(nullable = false)
     private boolean isRead;
 
-    public static Notification create(Member member, NotificationRequest req, String receiver) {
+    public static Notification create(Member member, NotificationRequest req, String receiver, String description) {
         String url = "/";
         if ("comment".equals(req.referenceType())) url += "board/" + req.referenceId();
         else url += req.referenceType() + "/" + req.referenceId();
@@ -52,6 +62,7 @@ public class Notification {
                 .url(url)
                 .sender(member)
                 .receiver(receiver)
+                .description(description)
                 .isRead(false)
                 .build();
     }

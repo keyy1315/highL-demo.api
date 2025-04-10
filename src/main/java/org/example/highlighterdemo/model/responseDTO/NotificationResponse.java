@@ -17,11 +17,11 @@ public record NotificationResponse(
         MemberResponse sender,
         String url
 ) {
-    public static NotificationResponse create(Notification notification, String description) {
+    public static NotificationResponse create(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .action(setAction(notification.getAction()))
-                .description(description)
+                .description(notification.getDescription())
                 .createdDate(notification.getCreatedDate())
                 .url(notification.getUrl())
                 .sender(MemberResponse.create(notification.getSender()))

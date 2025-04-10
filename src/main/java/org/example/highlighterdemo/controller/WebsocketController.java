@@ -29,12 +29,11 @@ public class WebsocketController {
     @MessageMapping("/noti.add")
     public void addComment(Principal principal, NotificationRequest req) {
         Member receiver = notificationService.getReceiver(req);
-        String description = notificationService.setDescription(receiver.getId(), req);
 
-        if(receiver.getId().equals(principal.getName())) return;
+        if (receiver.getId().equals(principal.getName())) return;
 
         NotificationResponse notiResponse = NotificationResponse.create(
-                notificationService.setNotification(principal.getName(), req, receiver.getId()), description);
+                notificationService.setNotification(principal.getName(), req, receiver.getId()));
 
         messagingTemplate.convertAndSend("/notifications/" + receiver.getId(), notiResponse);
     }
