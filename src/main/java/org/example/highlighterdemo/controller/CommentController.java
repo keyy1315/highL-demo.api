@@ -25,7 +25,7 @@ public class CommentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void setComment(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommentRequest commentRequest) {
-        commentService.setComments(userDetails.getUsername(), commentRequest);
+        commentService.setComments(userDetails, commentRequest);
     }
 
     @Operation(description = "댓글 목록 조회")
@@ -40,7 +40,7 @@ public class CommentController {
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void updateComment(@AuthenticationPrincipal UserDetails user, @PathVariable String id, @RequestBody CommentRequest commentRequest) {
-        commentService.updateComment(user.getUsername(), id, commentRequest);
+        commentService.updateComment(user, id, commentRequest);
     }
 
     @Operation(description = "댓글 삭제")
