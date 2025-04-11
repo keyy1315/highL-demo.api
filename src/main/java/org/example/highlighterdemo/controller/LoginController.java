@@ -19,7 +19,7 @@ public class LoginController {
     private final JwtService jwtService;
 
     @Operation(description = "로그인을 한다.")
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     @ResponseStatus(HttpStatus.OK)
     public void login(@Validated @RequestBody LoginRequest req) {
         // JsonUsernamePasswordAuthenticationFilter 에서 처리
