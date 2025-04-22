@@ -23,8 +23,9 @@ public class NotificationService {
 
     public Notification setNotification(String userName, NotificationRequest req, String receiver) {
         Member member = memberService.getUsersByUserId(userName);
+        String description = setDescription(receiver, req);
 
-        Notification notification = Notification.create(member, req, receiver);
+        Notification notification = Notification.create(member, req, receiver, description);
         return notificationRepository.save(notification);
     }
 

@@ -54,11 +54,11 @@ public class Board {
     @Schema(description = "video url")
     private String video;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Schema(description = "태그")
     @JoinTable(name = "board_tag",
             joinColumns = @JoinColumn(name = "board_id"),

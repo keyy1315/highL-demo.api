@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: Highlighter-demo
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(vlOCG9Zz34EIPASP1e6xXgdCS+eMBhabnJg7/Pe9OVgH83gkxag/kKqzAOXV/4Y/)
+    username: ENC(SKgVWl2h35lBddByvJIz5A==)
+    password: ENC(sk6W1rkX1Vfn6iKy6zVhAw==)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    show-sql: false
+    generate-ddl: true
+    defer-datasource-initialization: true
+#  sql:
+#    init:
+#      platform: mariadb
+#      mode: always
+#      data-locations: classpath:/data.sql
+  profiles:
+    include: jwt
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  cloud:
+    aws:
+      credentials:
+        access-key: ENC(Co4tUU9fO2RDhJ+9DdoOiWfx2tn+tljRAtXS2Vqx+oY=)
+        secret-key: ENC(9xC0pO3q89PJZ4K2uzOSyAaG6PgtS/CDI2dxn7h3dmTlu80txCjiPvvyMlw3pKnuOuwuZJeZYSM=)
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: highl-file
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      httpclient:
+        hc5:
+          enabled: true
+          connection-request-timeout: 5
+
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: method
+    doc-expansion: none
+
+
+server:
+  port: 8081
+  error:
+    include-stacktrace: always
+
+riot:
+  api: RGAPI-afd067ab-e757-4275-a4ae-9ae89607bb23
+
+logging:
+  level:
+    org.example.highlighterdemo.feign: DEBUG
+
+
+
+

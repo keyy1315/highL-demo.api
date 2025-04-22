@@ -1,0 +1,8 @@
+jwt:
+  secret: ENC(J7lcW/3MIlmyNUrCv7d61o6qi7duqOjucE4KPzHboPBGhlz/XfD8QbliYegqNLkody8VBSyIuVnPfTQPXpZziLQyEtoY8neM)
+  access:
+    expiration: 600
+    header: Authorization
+  refresh:
+    expiration: 3600
+    header: Authorization-refresh

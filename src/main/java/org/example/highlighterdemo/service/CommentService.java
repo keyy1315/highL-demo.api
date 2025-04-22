@@ -32,8 +32,9 @@ public class CommentService {
     }
 
     @Transactional
-    public void setComments(String username, CommentRequest commentRequest) {
-        Member member = memberRepository.findById(username).orElseThrow(
+    public void setComments(UserDetails user, CommentRequest commentRequest) {
+        checkUserDetails(user);
+        Member member = memberRepository.findById(user.getUsername()).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find member"));
         Board board = boardRepository.findById(commentRequest.boardId()).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find board"));
@@ -66,7 +67,7 @@ public class CommentService {
     private CommentResponse buildHierarchy(Comment p, List<Comment> comments) {
         List<CommentResponse> childComments = comments.stream()
                 .filter(c -> {
-                    if(c.getParentComment() == null) return false;
+                    if (c.getParentComment() == null) return false;
                     return Objects.equals(c.getParentComment().getId(), p.getId());
                 })
                 .map(child -> buildHierarchy(child, comments))
@@ -75,10 +76,11 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment(String memberId, String id, CommentRequest commentRequest) {
+    public void updateComment(UserDetails user, String id, CommentRequest commentRequest) {
+        checkUserDetails(user);
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment"));
 
-        if (Objects.equals(memberId, comment.getMember().getId())) {
+        if (Objects.equals(user.getUsername(), comment.getMember().getId())) {
             comment.updateComment(commentRequest.content());
         } else {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "you don't have a permission to update this comment");
@@ -87,6 +89,7 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(UserDetails user, String id) {
+        checkUserDetails(user);
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment"));
 
         if (user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(MemberRole.ADMIN.getValue())) ||
@@ -97,5 +100,9 @@ public class CommentService {
 
     public Comment getCommentById(String id) {
         return commentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Cannot find comment"));
+    }
+
+    private void checkUserDetails(UserDetails user) {
+        if (user == null) throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "user is null");
     }
 }

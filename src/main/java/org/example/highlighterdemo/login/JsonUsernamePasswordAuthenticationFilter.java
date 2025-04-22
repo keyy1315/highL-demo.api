@@ -21,7 +21,7 @@ import java.util.Map;
 ///     POST 메소드로 요청이 들어올 시 콘텐츠 타입을 확인하고
 ///     userId, password 추출 후 UsernamePasswordAuthenticationToken 을 생성해준다.
 public class JsonUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-    private static final String DEFAULT_LOGIN_REQUEST_URL = "/login";
+    private static final String DEFAULT_LOGIN_REQUEST_URL = "/api/login";
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
     private static final String USERID_KEY = "userId";
