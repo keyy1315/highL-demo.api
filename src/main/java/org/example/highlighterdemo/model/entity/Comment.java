@@ -36,7 +36,7 @@ public class Comment {
     @Schema(description = "like counts")
     private int likes;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     @Schema(description = "writer")
     private Member member;
