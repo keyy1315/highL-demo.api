@@ -46,7 +46,7 @@ jobs:
         run: |
           docker-compose -f ./docker-compose.ci.yml up -d mariadb
           echo "Waiting for MariaDB to be ready..."
-          dockerize -wait tcp://localhost:3306 -timeout 1m
+          dockerize -wait tcp://localhost:3307 -timeout 1m
 
       - name: Check running containers
         run: docker ps
