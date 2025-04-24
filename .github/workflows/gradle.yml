@@ -77,6 +77,15 @@ jobs:
           docker build -t ${{secrets.DOCKER_USERNAME}}/${{env.DOCKER_REPO_NAME}} .
           docker push ${{secrets.DOCKER_USERNAME}}/${{env.DOCKER_REPO_NAME}}
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          
+          echo "${{secrets.SEVER_SSH_KEY}}" > ~/.ssh/id_rsa
+          
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null" >> ~/.ssh/config
+
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:

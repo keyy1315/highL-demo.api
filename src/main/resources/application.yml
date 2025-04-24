@@ -4,8 +4,8 @@ spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(7F1Bp5SlS2Rl5479lpalVkpQcpfxWLXM90N/pNsEUPBBiSjT1z0xGC1HKM20z30R)
-    username: ENC(iSn2eIvAZ10cWKfKqcauAg==)
-    password: ENC(iSn2eIvAZ10cWKfKqcauAg==)
+    username: ENC(+yxTEYFjQCYMayzjU6B8SA==)
+    password: ENC(+yxTEYFjQCYMayzjU6B8SA==)
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,6 +23,7 @@ spring:
 #      data-locations: classpath:/data.sql
   profiles:
     include: jwt
+    active: test
   servlet:
     multipart:
       max-file-size: 50MB
