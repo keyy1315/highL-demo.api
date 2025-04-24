@@ -12,7 +12,7 @@ public class JasyptApplicationTests {
 
     @Test
     void jasypt() {
-        String access_key = "4C722A2916B4E532633A2BAD44CAE4D53D323F5C3149216CCF6D85BD5E";
+        String access_key = "jdbc:mariadb://mariadb:3306/lol";
 
         System.out.println("value ::: "+jasyptAEncoding(access_key));
     }

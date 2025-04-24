@@ -3,7 +3,7 @@ spring:
     name: Highlighter-demo
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(vlOCG9Zz34EIPASP1e6xXgdCS+eMBhabnJg7/Pe9OVgH83gkxag/kKqzAOXV/4Y/)
+    url: ENC(ozKPMPP0FlvOas5GmIbVadVZ8/IA6o/VVOTakM8q0ShctlqaPvHaSQ==)
     username: ENC(SKgVWl2h35lBddByvJIz5A==)
     password: ENC(sk6W1rkX1Vfn6iKy6zVhAw==)
   jpa:
