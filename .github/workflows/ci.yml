@@ -1,17 +1,17 @@
-name: CI/CD with Docker, gitHub action
+name: CI/CD with Docker and GitHub Actions
 
 on:
   push:
     branches:
       - master
+
 env:
   DOCKER_IMAGE_NAME: highlighter-demo.api
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER: false
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-24.04 [Beta]
+    runs-on: ubuntu-24.04
     services:
       mariadb:
         image: mariadb:latest
@@ -30,6 +30,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
@@ -45,9 +46,14 @@ jobs:
 
   docker-build-and-push:
     needs: build-and-test
-    runs-on: ubuntu-24.04 [Beta]
+    runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set timestamp tag
+        id: tag
+        run: echo "TAG=$(date +'%y%m%d%H%M')" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -55,25 +61,30 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image (with BuildKit)
+      - name: Build and push Docker images
         run: |
-          docker buildx create --use
+          docker buildx create --use || true
           docker buildx build \
-          --platform linux/amd64, linux/arm64 \
-          -t ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
-          --push .
+            --platform linux/amd64 \
+            -t ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
+            -t ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.TAG }} \
+            --push .
 
   deploy:
     needs: docker-build-and-push
-    runs-on: ubuntu-24.04 [Beta]
+    runs-on: ubuntu-24.04
+
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          TAG: ${{ env.TAG }}
         with:
-          host: ${{secrets.SERVER_HOST}}
-          username: ${{secrets.SERVER_USERNAME}}
-          key: ${{secrets.SERVER_SSH_KEY}}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker pull ${{env.DOCKER_USERNAME}}/${{env.DOCKER_IMAGE_NAME}}:latest
+            docker pull ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${TAG}
+            docker tag ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${TAG} ${{ env.DOCKER_IMAGE_NAME }}:local
             docker compose down
             docker compose up -d
