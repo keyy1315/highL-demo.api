@@ -97,8 +97,9 @@ jobs:
           username: ${{secrets.SERVER_USERNAME}}
           key: ${{secrets.SERVER_SSH_KEY}}
           script: |
-            sudo docker rm $(sudo docker ps -a)
-            sudo docker pull ${{secrets.DOCKER_USERNAME}}/${{env.DOCKER_REPO_NAME}}
+            sudo docker rm $(sudo docker ps -a -q)
+            sudo docker volume prune -f
             cd ~
+            sudo docker-compose down -v
             docker-compose up -d
             sudo docker image prune -f
