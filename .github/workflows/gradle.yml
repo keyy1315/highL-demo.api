@@ -48,6 +48,13 @@ jobs:
           echo "Waiting for MariaDB to be ready..."
           dockerize -wait tcp://localhost:3306 -timeout 1m
 
+      - name: Check running containers
+        run: docker ps
+
+      - name: Check MariaDB logs
+        run: docker logs test-mariadb
+
+
       - name: Run tests
         run: |
           chmod +x gradlew
