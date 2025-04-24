@@ -80,11 +80,15 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          
-          echo "${{secrets.SEVER_SSH_KEY}}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           
           chmod 600 ~/.ssh/id_rsa
+
           echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null" >> ~/.ssh/config
+
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SERVER_USERNAME}}/${{secrets.SERVER_HOST}} "echo 'SSH connection success'"
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
