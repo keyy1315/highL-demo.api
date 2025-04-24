@@ -7,6 +7,7 @@ on:
 env:
   DOCKER_IMAGE_NAME: highlighter-demo.api
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER: false
 
 jobs:
   build-and-test:
