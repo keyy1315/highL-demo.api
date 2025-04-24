@@ -14,7 +14,7 @@ public class JasyptApplicationTests {
 
     @Test
     void jasypt() {
-        String access_key = "jdbc:mariadb://localhost:3306/lol";
+        String access_key = "root";
 
         System.out.println("value ::: "+jasyptAEncoding(access_key));
     }
