@@ -14,7 +14,7 @@ public class JasyptApplicationTests {
 
     @Test
     void jasypt() {
-        String access_key = "dev";
+        String access_key = "user";
 
         System.out.println("value ::: "+jasyptAEncoding(access_key));
     }
