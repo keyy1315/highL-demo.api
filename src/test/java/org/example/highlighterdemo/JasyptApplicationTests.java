@@ -3,7 +3,9 @@ package org.example.highlighterdemo;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class JasyptApplicationTests {
     @Test
@@ -12,7 +14,7 @@ public class JasyptApplicationTests {
 
     @Test
     void jasypt() {
-        String access_key = "4C722A2916B4E532633A2BAD44CAE4D53D323F5C3149216CCF6D85BD5E";
+        String access_key = "user";
 
         System.out.println("value ::: "+jasyptAEncoding(access_key));
     }

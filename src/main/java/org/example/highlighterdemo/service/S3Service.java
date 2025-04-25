@@ -4,8 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
+import org.example.highlighterdemo.feign.AnalyzeVideo;
+import org.example.highlighterdemo.feign.dto.VideoAnalyzeDTO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -14,18 +25,20 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
     private final S3Client s3Client;
-    @Value("${spring.cloud.aws.region.static}")
-    private String regionName;
+    private final AnalyzeVideo analyzeVideo;
+
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -44,23 +57,27 @@ public class S3Service {
                 throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "failed to create directory");
             }
         }
-        String filePath = UPLOAD_DIRECTORY + file.getOriginalFilename();
-        File savedFile = new File(filePath);
+        File savedFile = new File(UPLOAD_DIRECTORY + file.getOriginalFilename());
         file.transferTo(savedFile);
         return savedFile;
     }
 
     public void deleteFile(File file) {
-        if(file.exists()) {
+        if (file.exists()) {
             boolean deleted = file.delete();
         }
     }
 
-    public String uploadFile(MultipartFile file) throws IOException, S3Exception{
-        if(file == null || file.isEmpty()) {
+    public String uploadFile(MultipartFile file) throws IOException, S3Exception {
+        if (file == null || file.isEmpty()) {
             return null;
         }
         File savedFile = saveFile(file);
+
+        if (!analyzeVideo.analyzeVideo(file).is_lol_video()) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Only League of Legends play videos can be uploaded.");
+        }
+
         String s3Key = VIDEO_PATH + savedFile.getName();
 
         PutObjectRequest request = PutObjectRequest.builder()
@@ -74,6 +91,29 @@ public class S3Service {
         return s3Key;
     }
 
+//    public String analyzeAndUploadVideo(MultipartFile file) throws IOException {
+//        File savedFile = saveFile(file);
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//
+//        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//        body.add("file", new FileSystemResource(savedFile));
+//
+//        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+//
+//        ResponseEntity<String> response = restTemplate.postForEntity(fastApiUrl+"analyze", request, String.class);
+//
+//        if ("true".equals(response.getBody())) {
+//            return uploadFile(savedFile);
+//        } else {
+//            deleteFile(savedFile);
+//            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "Only League of Legends play videos can be uploaded.");
+//        }
+//    }
+
     public void getVideos(OutputStream outputStream, String s3Key) {
         GetObjectRequest request = GetObjectRequest.builder()
                 .bucket(bucket)
@@ -86,7 +126,7 @@ public class S3Service {
             while ((len = s3Object.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, len);
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "S3 ERROR : failed to get file");
         }
     }
