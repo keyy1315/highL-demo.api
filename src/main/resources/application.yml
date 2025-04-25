@@ -4,8 +4,6 @@ spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(7F1Bp5SlS2Rl5479lpalVkpQcpfxWLXM90N/pNsEUPBBiSjT1z0xGC1HKM20z30R)
-    username: ENC(+yxTEYFjQCYMayzjU6B8SA==)
-    password: ENC(+yxTEYFjQCYMayzjU6B8SA==)
     username: ENC(2qVMa/bR8rFXQL47+rsVbA==)
     password: ENC(2qVMa/bR8rFXQL47+rsVbA==)
   jpa:
@@ -59,8 +57,8 @@ server:
   error:
     include-stacktrace: always
 
-riot:
-  api: RGAPI-afd067ab-e757-4275-a4ae-9ae89607bb23
+fastapi:
+  url: http://localhost:8082
 
 logging:
   level:
