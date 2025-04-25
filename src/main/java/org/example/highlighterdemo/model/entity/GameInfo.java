@@ -9,10 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
 import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
-
-import java.util.Set;
 
 @Builder
 @Getter
@@ -52,19 +49,15 @@ public class GameInfo {
 
     private static String ICON_BASE_URL = "https://ddragon.leagueoflegends.com/cdn/15.6.1/img/profileicon/";
 
-    public static GameInfo create(GameInfoRequest request, Set<LeagueEntryDTO> league, int iconId) {
-        String tier = "";
-        if(!league.iterator().next().tier().isEmpty()) {
-            tier = league.iterator().next().tier() + " " + league.iterator().next().rank();
-        }
+    public static GameInfo create(GameInfoRequest request) {
         return GameInfo.builder()
-                .id(league.iterator().next().puuid())
-                .summonerId(league.iterator().next().summonerId())
-                .tier(tier)
+                .id(request.puuid())
+                .summonerId(request.summonerId())
+                .tier(request.tier())
                 .gameName(request.gameName())
                 .tagLine(request.tagLine())
-                .iconUrl(ICON_BASE_URL + iconId + ".png")
-                .isActive(!league.iterator().next().inactive())
+                .iconUrl(ICON_BASE_URL + request.profileIconId() + ".png")
+                .isActive(request.isActive())
                 .build();
     }
 }

@@ -4,10 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.highlighterdemo.config.exception.CustomException;
 import org.example.highlighterdemo.config.exception.ErrorCode;
-import org.example.highlighterdemo.feign.RiotAsiaClient;
-import org.example.highlighterdemo.feign.RiotClient;
-import org.example.highlighterdemo.feign.dto.LeagueEntryDTO;
-import org.example.highlighterdemo.feign.dto.SummonerDTO;
 import org.example.highlighterdemo.model.entity.GameInfo;
 import org.example.highlighterdemo.model.entity.Member;
 import org.example.highlighterdemo.model.requestDTO.GameInfoRequest;
@@ -18,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 ///     회원 관련 비즈니스 로직
 @Slf4j
@@ -28,9 +22,6 @@ import java.util.Set;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final GameInfoRepository gameInfoRepository;
-
-    private final RiotClient riotClient;
-    private final RiotAsiaClient riotAsiaClient;
 
     @Transactional
     public Member signup(MemberRequest req) {
@@ -51,16 +42,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_INPUT_VALUE, "not found User Id")
         );
-
-        String puuid = Objects.requireNonNull(riotAsiaClient.getPUuid(req.gameName(), req.tagLine()).getBody()).get("puuid");
-        SummonerDTO summonerDTO = riotClient.getSummoner(puuid).getBody();
-        Set<LeagueEntryDTO> league = riotClient.getLeagueEntry(Objects.requireNonNull(summonerDTO).id()).getBody();
-
-        if (Objects.requireNonNull(league).isEmpty()) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, req.gameName() + "#" + req.tagLine() + " has no league entry this season..");
-        }
-        GameInfo gameInfo = GameInfo.create(req, Objects.requireNonNull(league), summonerDTO.profileIconId());
-
+        GameInfo gameInfo = GameInfo.create(req);
         if (gameInfoRepository.existsById(gameInfo.getId())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "exist Game Id");
         }
